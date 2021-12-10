@@ -12,8 +12,9 @@ configs via a web interface. The console provides support for deploying a node o
 * Single-Node -  A node containing both _master_ and _operator_ process respectively
 * Single-Node-Publisher -  A node containing both _master_ and _publisher_ process respectively
 
-In addition, to the web-based interface, there's a [Manual Deployment]() option, which allows for deploying an AnyLog 
-instance, based on a configuration file, via command line. 
+In addition, to the web-based interface, there's a [Manual Deployment](anylog_api/docker_deployment.py#L106) option, 
+which allows for deploying an AnyLog instance, based on a configuration file, via command line.
+
 ### Requirements
 * Python3
   * [docker](https://pypi.org/project/docker/) - used to deploy AnyLog
