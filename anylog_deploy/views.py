@@ -1,4 +1,5 @@
 import os
+import pkgutil
 import re
 import time
 
@@ -7,7 +8,9 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 import anylog_api.io_config as io_config
-import anylog_api.docker_deployment as docker_deployment
+if pkgutil.find_loader('docker'):
+    import anylog_api.docker_deployment as docker_deployment
+
 CONFIG_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
 
 NODE_TYPES = [
@@ -50,6 +53,7 @@ class DeploymentViews:
             'partition': {},
             'mqtt': {},
         }
+
         self.config_file = None
         preset_config_file = ''
         external_config_file = ''
@@ -117,8 +121,10 @@ class DeploymentViews:
                 return render(request, 'deploy_anylog.html',
                               {'form': base_configs, 'node_reply': 'Failed to validate one or more params'})
 
+        if not pkgutil.find_loader('docker'):
+            messages='docker package unable to be located, cannot actually deploy docker container(s) at this time.'
         # Extract values from forms
-        if request.method == 'POST':
+        if request.method == 'POST' and messages != {}:
             deploy_config = forms.DeployAnyLog(request.POST)
             if deploy_config.is_valid():
                 docker_password = request.POST.get('password')
@@ -145,7 +151,7 @@ class DeploymentViews:
                         for error in errors:
                             messages.append(error)
                 # Deploy AnyLog
-                if status is True:
+                if status is True and pkgutil.find_loader('docker'):
                     status, errors = docker_deployment.deploy_anylog_container(env_params=env_params, timezone='utc',
                                                                                docker_password=docker_password,
                                                                                update_anylog=update_anylog)
