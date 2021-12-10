@@ -18,7 +18,6 @@ from django.urls import include, path # new
 import djangoProject.views as views
 
 urlpatterns = [
-    path('', views.home),
-    path('admin/', admin.site.urls),
-    path('anylog-deploy/', include('anylog_deploy.urls')),
+    path('', include('anylog_deploy.urls')),
+    path('admin/', admin.site.urls)
 ]
