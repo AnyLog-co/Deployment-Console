@@ -93,6 +93,7 @@ class DeploymentViews:
             --> stay w/ message
             --> deployment_front_page.html when pressing "Start Over" button
         """
+        print(self.config_file)
         status = True
         messages = []
         base_configs = forms.BaseInfo()

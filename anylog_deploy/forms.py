@@ -2,7 +2,17 @@ from django import forms
 from django.core.validators import RegexValidator
 import os
 
-CONFIG_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
+FORM_PARAMS = {
+    'preset_config_file': {
+        'label': 'Config File',
+        'config_files': os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs'),
+        'help': 'List of configuration files in %s' % os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
+    },
+    'external_config_file': {
+        'label': 'External Config File',
+        'help': 'Manually input a configuration file'
+    }
+}
 
 BUILDS = (
     ('', ("")),
@@ -23,8 +33,6 @@ NODE_TYPES = (
     ('single-node', ("Single Node")),
     ('single-node-publisher', ("Single Node Publisher"))
 )
-
-NODE_TYPE = None
 
 AUTHENTICATION_TYPE = (
     ('admin', ("Admin")),
@@ -57,8 +65,12 @@ class SelectConfig(forms.Form):
     :HTML file:
         deployment_front_page.html
     """
-    preset_config_file = forms.FilePathField(label='Config File', path=CONFIG_FILE_PATH, required=False)
-    external_config_file = forms.CharField(label='External Config File', required=False)
+    preset_config_file = forms.FilePathField(label=FORM_PARAMS['preset_config_file']['label'],
+                                             path=FORM_PARAMS['preset_config_file']['config_files'], required=False,
+                                             help_text=FORM_PARAMS['preset_config_file']['help'])
+
+    external_config_file = forms.CharField(label=FORM_PARAMS['external_config_file']['label'], required=False,
+                                           help_text=FORM_PARAMS['external_config_file']['help'])
 
 
 class DeployAnyLog(forms.Form):
