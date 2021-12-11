@@ -17,12 +17,20 @@ al_forms = {
                 "options" : os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
             },
             {
+                "name": "my_text",
+                "label": "My Text",
+                "type": "input_text",
+                "size" : 80,
+            },
+
+            {
+                "break" : 3,
                 "name": "External Config File",
-                "type": "text",
+                "type": "button_submit",
             },
             {
                 "name": "Deploy Node",
-                "type": "button",
+                "type": "button_submit",
             },
 
         ]

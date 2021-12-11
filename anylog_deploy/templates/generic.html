@@ -20,10 +20,21 @@
 
     {% for field in fields %}
 
-        {% if field.type == "selection" %}
-            <input type ="submit" name = "button" value="{{field.name}}"/>
-        {% elif field.type == "text" %}
-            <input type ="submit" name = "button" value="{{field.name}}"/>
+        {% if field.break == 1 %}
+            <br/>
+        {% elif field.break == 2 %}
+            <br/><br/>
+        {% elif field.break == 3 %}
+            <br/><br/><br/>
+        {%  endif %}
+
+        {% if field.type == "button_submit" %}
+            <input type ="submit" name = "{{field.name}}" value="{{field.name}}"/>
+        {% elif field.type == "input_text" %}
+            {% if field.label %}
+                <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
+             {% endif %}
+            <input type="text" id="{{field.name}}" name="{{field.name}}" size="{{field.size}}">
         {%  endif %}
 
     {% endfor %}
