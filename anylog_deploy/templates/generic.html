@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+  <head>
+    <h1>{{ name }}</h1>
+    {% load static %}
+    <link rel='stylesheet' href="{% static 'css/default.css' %}">
+
+    <meta charset="UTF-8">
+    <title>User Registration Form</title>
+  </head>
+
+  <body>
+
+  <form method="POST" class="post-form" >
+    {% csrf_token %}
+    {{ form.as_p }}
+
+
+    <br/>
+
+    {% for field in fields %}
+
+        {% if field.type == "selection" %}
+            <input type ="submit" name = "button" value="{{field.name}}"/>
+        {% elif field.type == "text" %}
+            <input type ="submit" name = "button" value="{{field.name}}"/>
+        {%  endif %}
+
+    {% endfor %}
+
+  </form>
+
+  </body>
+
+</html>
