@@ -3,6 +3,7 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 
+FIRST_PAGE_KEY = "deploy_node"
 
 al_forms = {
 
@@ -63,6 +64,13 @@ al_forms = {
                     "type": "selection",
                     "options": ["----------", os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')]
                 },
+                {
+                    "label": "submit Node",
+                    "key": "submit_node",
+                    "type": "button_submit",
+                    "help": "HELP submit deploy ..."
+                },
+
             ]
     }
 
@@ -74,9 +82,12 @@ class Example:
 
         if request.method == 'POST':
             next_page_name = update_config(request)
+            if not next_page_name:
+                write_config_file()
+                next_page_name = FIRST_PAGE_KEY
 
         else:
-            next_page_name = "deploy_node"      # First page to display
+            next_page_name = FIRST_PAGE_KEY      # First page to display
 
         al_forms[next_page_name]["page_name"] = next_page_name      # store the page key to analyze the data
         return render(request, 'generic.html', al_forms[next_page_name])
@@ -109,3 +120,10 @@ def update_config(request):
         field["value"] = value
 
     return next_page
+
+
+def write_config_file():
+    '''
+    Write thr config file
+    '''
+    pass
