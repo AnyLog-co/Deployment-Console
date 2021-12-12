@@ -32,12 +32,35 @@
         {%  endif %}
 
         {% if field.type == "button_submit" %}
-            <input type ="submit" name = "{{field.name}}" value="{{field.name}}"/>
+
+            <input type ="submit" name = "{{field.key}}" value="{{field.label}}"/>
+
         {% elif field.type == "input_text" %}
+
             {% if field.label %}
                 <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
              {% endif %}
-            <input type="text" id="{{field.name}}" name="{{field.name}}" size="{{field.size}}">
+            <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}">
+
+        {% elif field.type == "selection" %}
+
+
+
+            <select id="{{field.key}}" name="{{field.key}}">
+
+            {% for next_option in field.options %}
+
+                {% if next_option == "{{field.value}}" %}
+                    <option selected value={{ next_option }}>&nbsp;{{ next_option }}</option>
+                {% else %}
+                    <option value={{ next_option }}>&nbsp;{{ next_option }}</option>
+                {% endif %}
+
+            {%  endfor %}
+
+            </select>
+
+
         {%  endif %}
 
     {% endfor %}

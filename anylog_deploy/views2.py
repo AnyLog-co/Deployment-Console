@@ -16,7 +16,7 @@ al_forms = {
                 "key" : "config_file",
                 "label" : "Config File",
                 "type" : "selection",
-                "options" : os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
+                "options" : ["option 1", "option 2"]
             },
             {
                 "key": "my_text",
@@ -72,14 +72,29 @@ class Example:
 
 
 def update_config(request):
+    '''
+    Use the keys from al_forms to retrieve the values set on th eforms
+    '''
 
     post_data = request.POST
     page_name = post_data.get('page_name')
+    next_page = post_data.get('next_page')
 
     # get field values
     form_defs = al_forms[page_name]
     fields = form_defs["fields"]
+
     for field in fields:
+        field_type = field["type"]
+        key =  field["key"]
+        value = post_data.get(key)
 
+        if field_type == "button_submit":
+            if value:
+                value = True
+            else:
+                value = False
 
-    pass
+        field["value"] = value
+
+    return next_page
