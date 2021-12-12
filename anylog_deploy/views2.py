@@ -96,8 +96,11 @@ class Example:
                 PAGE_COUNTER = 0
 
         else:
-            next_page_name = FIRST_PAGE_KEY      # First page to display
-            PAGE_COUNTER = 0
+            if PAGE_COUNTER:
+                PAGE_COUNTER -= 1       # Go back
+                next_page_name = PAGES_LIST[PAGE_COUNTER]
+            else:
+                next_page_name = FIRST_PAGE_KEY      # First page to display
 
         # Organize a list of pages to consider
         if next_page_name in PAGES_LIST:
