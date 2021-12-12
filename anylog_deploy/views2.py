@@ -37,6 +37,11 @@ al_forms = {
                 "key": "deploy_node",
                 "type": "button_submit",
             },
+            {
+                "label": "Checkbox",
+                "key": "my_checkbox",
+                "type": "checkbox",
+            },
 
         ]
     },
@@ -51,7 +56,7 @@ al_forms = {
                     "label": "Config File",
                     "key": "config_file",
                     "type": "selection",
-                    "options": os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
+                    "options": ["----------", os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')]
                 },
             ]
     }

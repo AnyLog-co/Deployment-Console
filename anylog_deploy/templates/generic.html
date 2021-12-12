@@ -39,10 +39,20 @@
 
             <input type ="submit" name = "{{field.key}}" value="{{field.label}}"/>
 
+
+        {% elif field.type == "checkbox" %}
+
+            {% if field.label %}
+                <label for="{{field.key}}"> {{field.label}}: </label>
+            {% endif %}
+
+            <input type="checkbox" id="{{field.key}}" name="{{field.key}}">
+
+
         {% elif field.type == "input_text" %}
 
             {% if field.label %}
-                <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
+                <label for="{{field.name}}">"{{field.key}}"&nbsp;</label>
              {% endif %}
             <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}">
 
