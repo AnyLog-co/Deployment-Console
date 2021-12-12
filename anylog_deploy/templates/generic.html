@@ -6,7 +6,7 @@
     <link rel="icon" href="{% static 'css/anylog-logo.ico' %}">
 
     <meta charset="UTF-8">
-    <title>AnyLog</title>
+    <title>Deploy AnyLog</title>
 
   </head>
 
@@ -58,7 +58,11 @@
                 <label for="{{field.key}}" > {{field.label}}: </label>
             {% endif %}
 
-            <input type="checkbox" id="{{field.key}}" name="{{field.key}}" title="{{field.help}}">
+            {% if field.value %}
+                <input type="checkbox" id="{{field.key}}" name="{{field.key}}" title="{{field.help}}" checked>
+            {% else %}
+                <input type="checkbox" id="{{field.key}}" name="{{field.key}}" title="{{field.help}}">
+            {%  endif %}
 
 
         {% elif field.type == "input_text" %}
@@ -79,7 +83,7 @@
 
             {% for next_option in field.options %}
 
-                {% if next_option == "{{field.value}}" %}
+                {% if next_option == field.value %}
                     <option selected value="{{ next_option }}">&nbsp;{{ next_option }}</option>
                 {% else %}
                     <option value="{{ next_option }}">&nbsp;{{ next_option }}</option>
