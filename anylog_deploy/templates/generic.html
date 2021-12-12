@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
+
   <head>
-    <h1>{{ name }}</h1>
     {% load static %}
-    <link rel='stylesheet' href="{% static 'css/default.css' %}">
+    <link rel="icon" href="{% static 'css/anylog-logo.ico' %}">
 
     <meta charset="UTF-8">
-    <title>User Registration Form</title>
+    <title>AnyLog</title>
+
   </head>
+
 
   <body>
 
@@ -15,8 +17,13 @@
     {% csrf_token %}
     {{ form.as_p }}
 
+    {% load static %} <img src="{% static "css/anylog-logo.ico" %}" alt="AnyLog Network" onclick="window.location.href='https://anylog.co/'" class="floatleft"/>
 
-    <br/>
+     &nbsp;  &nbsp;  &nbsp;
+    <text style="font-size: 30px">AnyLog Network: Node Deployment</text>
+
+
+    <br/>  <br/>  <br/>
 
     <input type="hidden" id="page_name" name="page_name" value="{{page_name}}">
     <input type="hidden" id="next_page" name="next_page" value="{{next}}">
