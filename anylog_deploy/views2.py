@@ -30,7 +30,8 @@ al_forms = {
                 "label": "My Text",
                 "type": "input_text",
                 "size" : 80,
-                "help" : "Description of input ..."
+                "help" : "Description of input ...",
+                "required" : True
             },
 
             {
@@ -96,11 +97,12 @@ class Example:
                 PAGE_COUNTER = 0
 
         else:
-            if PAGE_COUNTER:
-                PAGE_COUNTER -= 1       # Go back
+            if PAGE_COUNTER > 1:
+                PAGE_COUNTER -= 2       # Go back
                 next_page_name = PAGES_LIST[PAGE_COUNTER]
             else:
                 next_page_name = FIRST_PAGE_KEY      # First page to display
+                PAGE_COUNTER = 0
 
         # Organize a list of pages to consider
         if next_page_name in PAGES_LIST:
