@@ -76,6 +76,19 @@
                 <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}">
             {%  endif %}
 
+
+        {% elif field.type == "input_number" %}
+
+            {% if field.label %}
+                <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
+             {% endif %}
+            {% if field.required == True %}
+                <input type="number" id="{{field.key}}" name="{{field.key}}" min="{{field.min}}" max="{{field.max}}" value="{{field.value}}" title="{{field.help}}" required>
+            {%  else %}
+                <input type="number" id="{{field.key}}" name="{{field.key}}" min="{{field.min}}" max="{{field.max}}"  value="{{field.value}}" title="{{field.help}}">
+            {%  endif %}
+
+
         {% elif field.type == "selection" %}
 
              {% if field.label %}

@@ -8,6 +8,23 @@ FIRST_PAGE_KEY = "deploy_node"      # First page ID
 PAGE_COUNTER = 0                    # Number of pages process
 PAGES_LIST = []                     # An array with pages visited
 
+'''
+Form options:
+    name - the name of the form which appears on the title
+    next - the key of the page, None - ends the page inputs and writes the file
+    fields - a list of input fields for every form
+        type -  "selection", "input_text", "input_number", "button_submit", "checkbox"
+        label - text before the input field
+        print_before - list of text strings printed before the label and the input including "&nbsp;" and "<br/>"
+        print_after - list of text strings printed before the label and the input including "&nbsp;" and "<br/>"
+        options - selection options in selection field
+        config - True/False - if included and set to False, is not included in the config file
+        help - text with mouse hover
+        required - Optional for "input_text" and "input_number"
+        min - min value for number field
+        max - max value for number field
+'''
+
 al_forms = {
 
     "deploy_node" : {
@@ -32,6 +49,22 @@ al_forms = {
                 "size" : 80,
                 "help" : "Description of input ...",
                 "required" : True
+            },
+            {
+                "key": "port",
+                "label": "Port",
+                "type": "input_number",
+                "min": 80,
+                "max": 100,
+                "help": "Description of input ...",
+                "required": True
+            },
+            {
+                "key": "port_2",
+                "label": "Port 2",
+                "type": "input_number",
+                "help": "Description of port 2 ...",
+                "required": True
             },
 
             {
