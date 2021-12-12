@@ -18,12 +18,14 @@ al_forms = {
                 "type" : "selection",
                 "options" : ["option 1", "option 2"],
                 "print_after" : ["&nbsp;","&nbsp;"],
+                "help" : "Selection help ..."
             },
             {
                 "key": "my_text",
                 "label": "My Text",
                 "type": "input_text",
                 "size" : 80,
+                "help" : "Description of input ..."
             },
 
             {
@@ -31,16 +33,19 @@ al_forms = {
                 "label": "External Config File",
                 "key": "external_config_file",
                 "type": "button_submit",
+                "help" : "HELP submit config ..."
             },
             {
                 "label": "Deploy Node",
                 "key": "deploy_node",
                 "type": "button_submit",
+                "help" : "HELP submit deploy ..."
             },
             {
                 "label": "Checkbox",
                 "key": "my_checkbox",
                 "type": "checkbox",
+                "help" : "HELP checkbox ..."
             },
 
         ]
@@ -95,7 +100,7 @@ def update_config(request):
         key =  field["key"]
         value = post_data.get(key)
 
-        if field_type == "button_submit":
+        if field_type == "button_submit" or field_type == "checkbox":
             if value:
                 value = True
             else:

@@ -37,24 +37,24 @@
 
         {% if field.type == "button_submit" %}
 
-            <input type ="submit" name = "{{field.key}}" value="{{field.label}}"/>
+            <input type ="submit" name = "{{field.key}}" value="{{field.label}}" title="{{field.help}}"/>
 
 
         {% elif field.type == "checkbox" %}
 
             {% if field.label %}
-                <label for="{{field.key}}"> {{field.label}}: </label>
+                <label for="{{field.key}}" > {{field.label}}: </label>
             {% endif %}
 
-            <input type="checkbox" id="{{field.key}}" name="{{field.key}}">
+            <input type="checkbox" id="{{field.key}}" name="{{field.key}}" title="{{field.help}}">
 
 
         {% elif field.type == "input_text" %}
 
             {% if field.label %}
-                <label for="{{field.name}}">"{{field.key}}"&nbsp;</label>
+                <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
              {% endif %}
-            <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}">
+            <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}">
 
         {% elif field.type == "selection" %}
 
@@ -63,7 +63,7 @@
              {% endif %}
 
 
-            <select id="{{field.key}}" name="{{field.key}}">
+            <select id="{{field.key}}" name="{{field.key}}" title="{{field.help}}">
 
             {% for next_option in field.options %}
 
