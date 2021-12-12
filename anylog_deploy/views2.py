@@ -3,7 +3,10 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 
-FIRST_PAGE_KEY = "deploy_node"
+FIRST_PAGE_KEY = "deploy_node"      # First page ID
+
+PAGE_COUNTER = 0                    # Number of pages process
+PAGES_LIST = []                     # An array with pages visited
 
 al_forms = {
 
@@ -19,7 +22,8 @@ al_forms = {
                 "type" : "selection",
                 "options" : ["option 1", "option 2"],
                 "print_after" : ["&nbsp;","&nbsp;"],
-                "help" : "Selection help ..."
+                "help" : "Selection help ...",
+                "config" : False,                   # not to include in the config file
             },
             {
                 "key": "my_text",
@@ -80,19 +84,38 @@ al_forms = {
 class Example:
     def front_page(self, request)->HttpResponse:
 
+        global FIRST_PAGE_KEY
+        global PAGE_COUNTER
+        global PAGES_LIST
+
         if request.method == 'POST':
             next_page_name = update_config(request)
             if not next_page_name:
                 write_config_file()
-                next_page_name = FIRST_PAGE_KEY
+                next_page_name = FIRST_PAGE_KEY     # FIRST form page
+                PAGE_COUNTER = 0
 
         else:
             next_page_name = FIRST_PAGE_KEY      # First page to display
+            PAGE_COUNTER = 0
+
+        # Organize a list of pages to consider
+        if next_page_name in PAGES_LIST:
+            # The page exists - make this page the las page to consider
+            PAGE_COUNTER = PAGES_LIST.index(next_page_name)
+        else:
+            if PAGE_COUNTER == len(PAGES_LIST):
+                PAGES_LIST.append(next_page_name)
+            else:
+                PAGES_LIST[PAGE_COUNTER] = next_page_name
+        PAGE_COUNTER += 1
 
         al_forms[next_page_name]["page_name"] = next_page_name      # store the page key to analyze the data
         return render(request, 'generic.html', al_forms[next_page_name])
 
-
+# ------------------------------------------------------------------------------------------------------
+# Update the form info with the user selections on the form page
+# ------------------------------------------------------------------------------------------------------
 def update_config(request):
     '''
     Use the keys from al_forms to retrieve the values set on th eforms
@@ -121,9 +144,31 @@ def update_config(request):
 
     return next_page
 
-
+# ------------------------------------------------------------------------------------------------------
+# Create the config file + Output the info to a config file
+# ------------------------------------------------------------------------------------------------------
 def write_config_file():
     '''
-    Write thr config file
+    Write the config file
     '''
+    global al_forms
+    global PAGE_COUNTER
+    global PAGES_LIST
+
+    config_file = ""
+
+    for counter in range(PAGE_COUNTER):
+
+        page_name = PAGES_LIST[counter]
+        form_defs = al_forms[page_name]
+        fields = form_defs["fields"]
+
+        for field in fields:
+
+            if "key" in field and "value" in field:
+                if not "config" in field or field["config"] == False:       # field["config"] set to false makes the value removed from the output file
+                    config_file.append("\n\r" + field["key"] + '=' + field["value"])
+
+
+    # write to file
     pass
