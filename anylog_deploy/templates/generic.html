@@ -23,13 +23,17 @@
 
     {% for field in fields %}
 
-        {% if field.break == 1 %}
-            <br/>
-        {% elif field.break == 2 %}
-            <br/><br/>
-        {% elif field.break == 3 %}
-            <br/><br/><br/>
-        {%  endif %}
+        {% for print_str in field.print_before %}
+
+            {% if print_str == "&nbsp;" %}
+                &nbsp;
+            {% elif print_str == "<br/>" %}
+                <br/>
+            {% else %}
+                <text>print_str</text>
+            {% endif %}
+
+        {%  endfor %}
 
         {% if field.type == "button_submit" %}
 
@@ -44,6 +48,9 @@
 
         {% elif field.type == "selection" %}
 
+             {% if field.label %}
+                <text>{{field.label}}:&nbsp;</text>
+             {% endif %}
 
 
             <select id="{{field.key}}" name="{{field.key}}">
@@ -51,9 +58,9 @@
             {% for next_option in field.options %}
 
                 {% if next_option == "{{field.value}}" %}
-                    <option selected value={{ next_option }}>&nbsp;{{ next_option }}</option>
+                    <option selected value="{{ next_option }}">&nbsp;{{ next_option }}</option>
                 {% else %}
-                    <option value={{ next_option }}>&nbsp;{{ next_option }}</option>
+                    <option value="{{ next_option }}">&nbsp;{{ next_option }}</option>
                 {% endif %}
 
             {%  endfor %}
@@ -62,6 +69,19 @@
 
 
         {%  endif %}
+
+
+        {% for print_str in field.print_after %}
+
+            {% if print_str == "&nbsp;" %}
+                &nbsp;
+            {% elif print_str == "<br/>" %}
+                <br/>
+            {% else %}
+                <text>{{ print_str }} </text>
+            {% endif %}
+
+        {%  endfor %}
 
     {% endfor %}
 

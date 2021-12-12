@@ -16,7 +16,8 @@ al_forms = {
                 "key" : "config_file",
                 "label" : "Config File",
                 "type" : "selection",
-                "options" : ["option 1", "option 2"]
+                "options" : ["option 1", "option 2"],
+                "print_after" : ["&nbsp;","&nbsp;"],
             },
             {
                 "key": "my_text",
@@ -26,7 +27,7 @@ al_forms = {
             },
 
             {
-                "break" : 3,
+                "print_before" : ["<br/>","<br/>","<br/>"],
                 "label": "External Config File",
                 "key": "external_config_file",
                 "type": "button_submit",
