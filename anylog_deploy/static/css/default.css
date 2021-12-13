@@ -1,0 +1,17 @@
+
+
+
+.floatleft{
+    float:left;
+    margin-left:10px;
+    margin-right:10px;
+    height: 70px;
+    width: 70px;
+    cursor: pointer;
+
+}
+
+.networktext {
+  font-size: 40px;
+  padding-left: 40px;
+}

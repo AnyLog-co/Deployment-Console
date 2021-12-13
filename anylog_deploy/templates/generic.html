@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+
+  <head>
+    {% load static %}
+    <link rel="icon" href="{% static 'css/anylog-logo.ico' %}">
+
+    <meta charset="UTF-8">
+    <title>Deploy AnyLog</title>
+
+  </head>
+
+
+  <body>
+
+  <form method="POST" class="post-form" >
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <br/>
+
+    {% load static %} <img src="{% static "css/anylog-logo.ico" %}" alt="AnyLog Network" width="20" height="20" onclick="window.location.href='https://anylog.co/'" class="floatleft"/>
+
+     &nbsp;  &nbsp;
+    <text style="font-size: 25px">AnyLog Network - {{name}}</text>
+
+
+    <br/>
+    <hr>
+
+    <br/>  <br/>
+
+    <input type="hidden" id="page_name" name="page_name" value="{{page_name}}">
+    <input type="hidden" id="next_page" name="next_page" value="{{next}}">
+
+
+    {% if selection_list %}
+        <table border="5" >
+            <tr>
+            {% for column_name in selection_header %}
+                <th>{{ column_name }}</th>
+            {%  endfor %}
+            </tr>
+
+        {% for table_row in selection_list %}
+            <tr>
+            {% for column in table_row %}
+                <td>{{ column }}</td>
+            {%  endfor %}
+            </tr>
+        {%  endfor %}
+        </table>
+
+        <br/>  <hr>
+        <br/>  <br/>
+
+    {% endif %}
+
+
+    {% for field in fields %}
+
+        {% for print_str in field.print_before %}
+
+            {% if print_str == "&nbsp;" %}
+                &nbsp;
+            {% elif print_str == "<br/>" %}
+                <br/>
+            {% else %}
+                <text>print_str</text>
+            {% endif %}
+
+        {%  endfor %}
+
+        {% if field.type == "button_submit" %}
+
+            <input type ="submit" name = "{{field.key}}" value="{{field.label}}" title="{{field.help}}"/>
+
+
+        {% elif field.type == "checkbox" %}
+
+            {% if field.label %}
+                <label for="{{field.key}}" > {{field.label}}: </label>
+            {% endif %}
+
+            {% if field.value %}
+                <input type="checkbox" id="{{field.key}}" name="{{field.key}}" title="{{field.help}}" checked>
+            {% else %}
+                <input type="checkbox" id="{{field.key}}" name="{{field.key}}" title="{{field.help}}">
+            {%  endif %}
+
+
+        {% elif field.type == "input_text" %}
+
+            {% if field.label %}
+                <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
+             {% endif %}
+            {% if field.required == True %}
+                <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}" required>
+            {%  else %}
+                <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}">
+            {%  endif %}
+
+
+        {% elif field.type == "input_number" %}
+
+            {% if field.label %}
+                <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
+             {% endif %}
+            {% if field.required == True %}
+                <input type="number" id="{{field.key}}" name="{{field.key}}" min="{{field.min}}" max="{{field.max}}" value="{{field.value}}" title="{{field.help}}" required>
+            {%  else %}
+                <input type="number" id="{{field.key}}" name="{{field.key}}" min="{{field.min}}" max="{{field.max}}"  value="{{field.value}}" title="{{field.help}}">
+            {%  endif %}
+
+
+        {% elif field.type == "selection" %}
+
+             {% if field.label %}
+                <text>{{field.label}}:&nbsp;</text>
+             {% endif %}
+
+
+            <select id="{{field.key}}" name="{{field.key}}" title="{{field.help}}">
+
+            {% for next_option in field.options %}
+
+                {% if next_option == field.value %}
+                    <option selected value="{{ next_option }}">&nbsp;{{ next_option }}</option>
+                {% else %}
+                    <option value="{{ next_option }}">&nbsp;{{ next_option }}</option>
+                {% endif %}
+
+            {%  endfor %}
+
+            </select>
+
+
+        {%  endif %}
+
+
+        {% for print_str in field.print_after %}
+
+            {% if print_str == "&nbsp;" %}
+                &nbsp;
+            {% elif print_str == "<br/>" %}
+                <br/>
+            {% else %}
+                <text>{{ print_str }} </text>
+            {% endif %}
+
+        {%  endfor %}
+
+    {% endfor %}
+
+
+   <br/> <br/> <hr>
+
+  <input type ="submit" name = "next_web_page" value="Next Page" title="Go to the next selection page"/>
+  &nbsp; &nbsp;
+  <input type ="submit" name = "previous_web_page" value="Previous Page" title="Go to the previous selection page"/>
+  &nbsp; &nbsp;
+  <input type ="submit" name = "show_selections" value="Show Selections" title="Show all config selections"/>
+
+  </form>
+
+  </body>
+
+
+</html>

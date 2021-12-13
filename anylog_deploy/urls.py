@@ -1,7 +1,9 @@
 from django.urls import path
 import anylog_deploy.views as views
+import anylog_deploy.views2 as views2
 import anylog_deploy.long_form as long_form
 view_options = views.DeploymentViews()
+views2_options = views2.Example()
 
 urlpatterns = [
     path('', view_options.front_page, name='deployment-front'),
@@ -14,5 +16,5 @@ urlpatterns = [
     path('operator-database-configs/', view_options.operator_database_configs, name='operator-database-configs'),
     path('mqtt-configs/', view_options.mqtt_configs, name='mqtt-configs/'),
     path('full-form/', long_form.full_view, name='full-form'),
-    path('empty-form/', view_options.start_file, name='empty-form')
+    path('example/', views2_options.front_page, name='example')
 ]
