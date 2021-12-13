@@ -128,8 +128,10 @@ class Example:
         if request.method == 'POST':
             if request.POST.get('show_selections'):
                 # Keep the same page + show selections
+                update_config(request)
                 next_page_name = request.POST.get('page_name')
-                set_selection()
+                selection_list = set_selection()
+                al_forms["__selection"] == selection_list       # This list is used to print the selection on the web page
             elif request.POST.get('previous_web_page'):
                 next_page_name = set_previous()  # Set on the previous page or the first page
             else:
@@ -213,8 +215,18 @@ def set_selection():
                 page_name = ""
 
             if "key" in field and "value" in field:
-                selections_list.append((page_name, field["key"], field["value"]))
+                if "label" in field:
+                    label = field["label"]
+                else:
+                    label = ""
 
+                if not len(selections_list):
+                    # Add  title
+                    selections_list.append(("Page", "Field", "Key", "Value"))
+
+                selections_list.append((page_name, label, field["key"], field["value"]))
+
+    return selections_list
 
 # ------------------------------------------------------------------------------------------------------
 # Return and set status on the previous page or on the first page if no previous
