@@ -43,6 +43,16 @@ al_forms = {
                 "config" : False,                   # not to include in the config file
             },
             {
+                "key": "config_file2",
+                "label": "Config File2",
+                "type": "selection",
+                "options": ["option 1", "option 2"],
+                "print_before": ["<br/>", "--->"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Selection help2222 ...",
+            },
+
+            {
                 "key": "my_text",
                 "label": "My Text",
                 "type": "input_text",
