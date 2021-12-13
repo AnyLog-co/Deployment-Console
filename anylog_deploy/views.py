@@ -4,6 +4,8 @@ import re
 import time
 
 import anylog_deploy.forms as forms
+import anylog_deploy.params as params
+
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
@@ -69,11 +71,12 @@ class DeploymentViews:
                     self.config_file = preset_config_file
                 elif external_config_file != '' and os.path.isfile(external_config_file):
                     self.config_file = external_config_file
-        if self.config_file is not None:
-            return HttpResponseRedirect('deploy-anylog/')
+            if self.config_file is not None:
+                self.env_params = io_config.read_configs(config_file=self.config_file)
+            return HttpResponseRedirect('basic-configs/')
         else:
             config_params = forms.SelectConfig()
-            return render(request, "deployment_front_page.html", {'form': config_params})\
+        return render(request, "deployment_front_page.html", {'form': config_params})
 
     def deploy_anylog(self, request)->HttpResponse:
         """
@@ -93,7 +96,6 @@ class DeploymentViews:
             --> stay w/ message
             --> deployment_front_page.html when pressing "Start Over" button
         """
-        print(self.config_file)
         status = True
         messages = []
         base_configs = forms.BaseInfo()
@@ -101,6 +103,7 @@ class DeploymentViews:
         update_anylog = False
         psql = False
         grafana = False
+
 
         # Extract configuration information
         if self.config_file is None:
@@ -177,6 +180,12 @@ class DeploymentViews:
             - if NODE_TYPE != none and NODE_TYPE != '': general-configs
             - other: stay
         """
+        env_params = {}
+        if 'BUILD' in self.env_params:
+            env_params['build'] = self.env_params['BUILD']
+        if 'NODE_TYPE' in self.env_params:
+            env_params['node_type'] = self.env_params['NODE_TYPE']
+
         if request.method == 'POST':
             basic_config = forms.BaseInfo(request.POST)
             if basic_config.is_valid():
@@ -470,5 +479,7 @@ class DeploymentViews:
 
         return render(request, 'mqtt_configs.html', {'form': mqtt_config})
 
-
+    def start_file(self, request)->HttpResponse:
+        empty_form = forms.EmptyForm()
+        return render(request, 'base_configs', {'form': empty_form})
 

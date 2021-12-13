@@ -14,4 +14,5 @@ urlpatterns = [
     path('operator-database-configs/', view_options.operator_database_configs, name='operator-database-configs'),
     path('mqtt-configs/', view_options.mqtt_configs, name='mqtt-configs/'),
     path('full-form/', long_form.full_view, name='full-form'),
+    path('empty-form/', view_options.start_file, name='empty-form')
 ]
