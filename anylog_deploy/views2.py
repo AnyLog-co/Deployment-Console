@@ -157,6 +157,7 @@ class Example:
 
         if selection_list:
             # add selection
+            al_forms[next_page_name]["selection_header"] = ("Page", "Field", "Key", "Value")
             al_forms[next_page_name]["selection_list"] = selection_list
         else:
             # delete the selection
@@ -226,10 +227,6 @@ def set_selection():
                     label = field["label"]
                 else:
                     label = ""
-
-                if not len(selections_list):
-                    # Add  title
-                    selections_list.append(("Page", "Field", "Key", "Value"))
 
                 selections_list.append((page_name, label, field["key"], field["value"]))
 

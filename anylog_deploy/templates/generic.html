@@ -35,7 +35,13 @@
 
 
     {% if selection_list %}
-        <table>
+        <table border="5" >
+            <tr>
+            {% for column_name in selection_header %}
+                <th>{{ column_name }}</th>
+            {%  endfor %}
+            </tr>
+
         {% for table_row in selection_list %}
             <tr>
             {% for column in table_row %}
