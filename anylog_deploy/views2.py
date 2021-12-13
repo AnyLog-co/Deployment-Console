@@ -123,15 +123,13 @@ class Example:
         global PAGES_LIST
         global al_forms
 
-        al_forms["__selection"] = None
-
+        selection_list = None
         if request.method == 'POST':
             if request.POST.get('show_selections'):
                 # Keep the same page + show selections
                 update_config(request)
                 next_page_name = request.POST.get('page_name')
-                selection_list = set_selection()
-                al_forms["__selection"] == selection_list       # This list is used to print the selection on the web page
+                selection_list = set_selection()         # This list is used to print the selection on the web page
             elif request.POST.get('previous_web_page'):
                 next_page_name = set_previous()  # Set on the previous page or the first page
             else:
@@ -156,6 +154,15 @@ class Example:
         PAGE_COUNTER += 1
 
         al_forms[next_page_name]["page_name"] = next_page_name      # store the page key to analyze the data
+
+        if selection_list:
+            # add selection
+            al_forms[next_page_name]["selection_list"] = selection_list
+        else:
+            # delete the selection
+            if "selection_list" in al_forms[next_page_name]:
+                del al_forms[next_page_name]["selection_list"]
+
         return render(request, 'generic.html', al_forms[next_page_name])
 
 # ------------------------------------------------------------------------------------------------------

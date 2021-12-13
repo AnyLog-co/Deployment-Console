@@ -28,10 +28,28 @@
     <br/>
     <hr>
 
-    <br/>  <br/> <br/>
+    <br/>  <br/>
 
     <input type="hidden" id="page_name" name="page_name" value="{{page_name}}">
     <input type="hidden" id="next_page" name="next_page" value="{{next}}">
+
+
+    {% if selection_list %}
+        <table>
+        {% for table_row in selection_list %}
+            <tr>
+            {% for column in table_row %}
+                <td>{{ column }}</td>
+            {%  endfor %}
+            </tr>
+        {%  endfor %}
+        </table>
+
+        <br/>  <hr>
+        <br/>  <br/>
+
+    {% endif %}
+
 
     {% for field in fields %}
 
