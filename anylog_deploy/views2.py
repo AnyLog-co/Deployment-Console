@@ -121,21 +121,26 @@ class Example:
         global FIRST_PAGE_KEY
         global PAGE_COUNTER
         global PAGES_LIST
+        global al_forms
+
+        al_forms["__selection"] = None
 
         if request.method == 'POST':
-            next_page_name = update_config(request)
-            if not next_page_name:
-                write_config_file()
-                next_page_name = FIRST_PAGE_KEY     # FIRST form page
-                PAGE_COUNTER = 0
-
-        else:
-            if PAGE_COUNTER > 1:
-                PAGE_COUNTER -= 2       # Go back
-                next_page_name = PAGES_LIST[PAGE_COUNTER]
+            if request.POST.get('show_selections'):
+                # Keep the same page + show selections
+                next_page_name = request.POST.get('page_name')
+                set_selection()
+            elif request.POST.get('previous_web_page'):
+                next_page_name = set_previous()  # Set on the previous page or the first page
             else:
-                next_page_name = FIRST_PAGE_KEY      # First page to display
-                PAGE_COUNTER = 0
+                # get next page
+                next_page_name = update_config(request)
+                if not next_page_name:
+                    write_config_file()
+                    next_page_name = FIRST_PAGE_KEY     # FIRST form page
+                    PAGE_COUNTER = 0
+        else:
+            next_page_name = set_previous()             # Set on the previous page or the first page
 
         # Organize a list of pages to consider
         if next_page_name in PAGES_LIST:
@@ -181,7 +186,52 @@ def update_config(request):
         field["value"] = value
 
     return next_page
+# ------------------------------------------------------------------------------------------------------
+# Update a list of selections
+# ------------------------------------------------------------------------------------------------------
+def set_selection():
 
+    global FIRST_PAGE_KEY
+    global PAGE_COUNTER
+    global PAGES_LIST
+    global al_forms
+
+    selections_list = []
+
+    for page_id in range (PAGE_COUNTER):
+
+        page_key = PAGES_LIST[page_id]
+        # get field values
+        form_defs = al_forms[page_key]
+        fields = form_defs["fields"]
+
+        for index, field in enumerate(fields):
+
+            if not index:
+                page_name = form_defs["name"]
+            else:
+                page_name = ""
+
+            if "key" in field and "value" in field:
+                selections_list.append((page_name, field["key"], field["value"]))
+
+
+# ------------------------------------------------------------------------------------------------------
+# Return and set status on the previous page or on the first page if no previous
+# ------------------------------------------------------------------------------------------------------
+def set_previous():
+    global FIRST_PAGE_KEY
+    global PAGE_COUNTER
+    global PAGES_LIST
+
+    if PAGE_COUNTER > 1:
+        PAGE_COUNTER -= 2  # Go back
+        previous_page_name = PAGES_LIST[PAGE_COUNTER]
+    else:
+        previous_page_name = FIRST_PAGE_KEY  # First page to display
+        PAGE_COUNTER = 0
+
+    return previous_page_name
 # ------------------------------------------------------------------------------------------------------
 # Create the config file + Output the info to a config file
 # ------------------------------------------------------------------------------------------------------
