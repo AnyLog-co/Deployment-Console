@@ -1,8 +1,18 @@
-import os
 from django import forms
 from django.core.validators import RegexValidator
+import os
 
-CONFIG_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
+FORM_PARAMS = {
+    'preset_config_file': {
+        'label': 'Config File',
+        'config_files': os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs'),
+        'help': 'List of configuration files in %s' % os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
+    },
+    'external_config_file': {
+        'label': 'External Config File',
+        'help': 'Manually input a configuration file'
+    }
+}
 
 BUILDS = (
     ('', ("")),
@@ -55,13 +65,12 @@ class SelectConfig(forms.Form):
     :HTML file:
         deployment_front_page.html
     """
-    preset_config_file = forms.FilePathField(label='Preset Configs',
-                                             path=CONFIG_FILE_PATH, required=False,
-                                             help_text="List of configuration files in %s" % CONFIG_FILE_PATH,
-                                             match=r'^.*?\.ini$')
+    preset_config_file = forms.FilePathField(label=FORM_PARAMS['preset_config_file']['label'],
+                                             path=FORM_PARAMS['preset_config_file']['config_files'], required=False,
+                                             help_text=FORM_PARAMS['preset_config_file']['help'])
 
-    external_config_file = forms.CharField(label="External Config", required=False,
-                                           help_text='Manually input a configuration file')
+    external_config_file = forms.CharField(label=FORM_PARAMS['external_config_file']['label'], required=False,
+                                           help_text=FORM_PARAMS['external_config_file']['help'])
 
 
 class DeployAnyLog(forms.Form):
@@ -99,7 +108,6 @@ class BaseInfo(forms.Form):
     :HTML file:
        base_configs.html
     """
-
     build = forms.ChoiceField(label='Build', required=True, choices=BUILDS)
     node_type = forms.ChoiceField(label='Node Type', required=True, choices=NODE_TYPES)
 
@@ -186,8 +194,7 @@ class MqttConfigs(forms.Form):
     mqtt_column_value = forms.CharField(label='Value Column', required=False)
 
 
-class EmptyForm(forms.Form):
-    content = forms.CharField(label='content', required=False, widget=forms.Textarea)
+
 
 
 

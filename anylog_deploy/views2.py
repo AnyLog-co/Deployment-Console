@@ -3,7 +3,7 @@ from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 
-FIRST_PAGE_KEY = "deploy_node"      # First page ID
+FIRST_PAGE_KEY = "base_configs"      # First page ID
 
 PAGE_COUNTER = 0                    # Number of pages process
 PAGES_LIST = []                     # An array with pages visited
@@ -26,102 +26,335 @@ Form options:
 '''
 
 al_forms = {
-
-    "deploy_node" : {
-
-        "name" : "Deploy Node",
-        "next" : "set_connections",         # Next page
-        "fields" :
-        [
+    "base_configs" : { # Basic node type & build configuration
+        "name" : "Base Configs",
+        "next" : "general_info",
+        "fields" : [
             {
-                "key" : "config_file",
-                "label" : "Config File",
+                "key" : "build",
+                "label" : "Build",
                 "type" : "selection",
-                "options" : ["option 1", "option 2"],
+                "options" : ["", "predevelop"],
                 "print_after" : ["&nbsp;","&nbsp;"],
-                "help" : "Selection help ...",
-                "config" : False,                   # not to include in the config file
+                "help" : "AnyLog version to download from Docker Hub",
+                "config" : True,                   
             },
             {
-                "key": "config_file2",
-                "label": "Config File2",
+                "key": "node_type",
+                "label": "Node Type",
                 "type": "selection",
-                "options": ["option 1", "option 2"],
-                "print_before": ["<br/>", "--->"],
+                "options": ["", "none", "rest", "master", "operator", "publisher",
+                            "query", "single-node", "single-node-publisher"],
                 "print_after": ["&nbsp;", "&nbsp;"],
-                "help": "Selection help2222 ...",
-            },
-
-            {
-                "key": "my_text",
-                "label": "My Text",
-                "type": "input_text",
-                "size" : 80,
-                "help" : "Description of input ...",
-                "required" : True
-            },
-            {
-                "key": "port",
-                "label": "Port",
-                "type": "input_number",
-                "min": 80,
-                "max": 100,
-                "help": "Description of input ...",
-                "required": True
-            },
-            {
-                "key": "port_2",
-                "label": "Port 2",
-                "type": "input_number",
-                "help": "Description of port 2 ...",
-                "required": True
-            },
-
-            {
-                "print_before" : ["<br/>","<br/>","<br/>"],
-                "label": "External Config File",
-                "key": "external_config_file",
-                "type": "button_submit",
-                "help" : "HELP submit config ..."
-            },
-            {
-                "label": "Deploy Node",
-                "key": "deploy_node",
-                "type": "button_submit",
-                "help" : "HELP submit deploy ..."
-            },
-            {
-                "label": "Checkbox",
-                "key": "my_checkbox",
-                "type": "checkbox",
-                "help" : "HELP checkbox ..."
-            },
-
+                "help": "Type of node AnyLog should run",
+                "config": True,  
+            }
         ]
     },
+    "general_info": { # General information & authentication params
+        "name": "General Information",
+        "next": "network_configs",
+        "fields" : [
+            {
+                "key" : "node_name",
+                "label" : "Node Name",
+                "type" : "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help" : "Name correlated with the node",
+                "config" : True,                   
+            },
+            {
+                "key": "company_name",
+                "label": "Company Name",
+                "type": "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Company correlated with policies declared via this node",
+                "config": True
+            },
+            { # Optional
+                "key": "location",
+                "label": "Location",
+                "type": "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Machine location - coordinates location is accessible via Grafana Map visualization",
+                "config": True
+            },
+            {
+                "key": "authentication",
+                "label": "Authentication",
+                "type": "selection",
+                "options": ["false", "true"],
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Whether or not to enable authentication",
+                "config": True
+            },
+            {
+                "key": "username",
+                "label": "Authentication User",
+                "type": "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Authentication username",
+                "config": True
+            },
+            {
+                "key": "password",
+                "label": "Authentication Password",
+                "type": "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Authentication password correlated to user",
+                "config": True
+            },
+            {
+                "key": "auth_type",
+                "label": "Authentication Type",
+                "type": "selection",
+                "options": ["admin", "user"],
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Authentication user type",
+                "config": True
+            }
+        ]
+    },
+    "network_configs": { # network configurations
+        "name": "Network Configurations",
+        "next": "database_configs",
+        "fields": [
+            {
+                "key": "anylog_tcp_port",
+                "label": "TCP Port",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "TCP port for node used to communicate with other nodes in the network",
+                "config": True,  
+            },
+            {
+                "key": "anylog_rest_port",
+                "label": "REST Port",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "REST port to communicate against with the AnyLog instance",
+                "config": True,  
+            },
+            {
+                "key": "master_node",
+                "label": "Master Node",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "TCP connection information for master node",
+                "config": True,  
+            },
 
-    "set_connections" : {
-
-        "name" : "Set Connections",
-        "next" : "deploy_node",         # Next page
-        "fields":
-            [
-                {
-                    "label": "Config File",
-                    "key": "config_file",
-                    "type": "selection",
-                    "options": ["----------", os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')]
-                },
-                {
-                    "label": "submit Node",
-                    "key": "submit_node",
-                    "type": "button_submit",
-                    "help": "HELP submit deploy ..."
-                },
-
-            ]
+            # Optional params
+            {
+                "key": "anylog_broker_port",
+                "label": "Local Broker Port",
+                "type":"input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "AnyLog broker port",
+                "config": True
+            },
+            {
+                "key": "external_ip",
+                "label": "External IP",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "IP address to be used as the external ip",
+                "config": True
+            },
+            {
+                "key": "local_ip",
+                "label": "Local IP",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "IP address to be used as the local ip",
+                "config": True
+            }
+       ]
+    },
+    "database_configs": { # database params
+        "name": "Database Configurations",
+        "next": "operator_params",
+        "fields": [
+            {
+                "key": "db_type",
+                "label": "Database Type",
+                "type": "selection",
+                "options": ["", "sqlite", "psql"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Type of database to be used by the AnyLog node",
+                "config": True,  
+            },
+            {
+                "key": "db_user",
+                "label": "Database Credentials",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Database credentials (ex. ${USER}@${IP}:${PASSWORD})",
+                "config": True,
+            },
+            {
+                "key": "db_port",
+                "label": "Database Port",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Database access port",
+                "config": True,
+            }
+        ]
+    },
+    "operator_params": { # operator params - default dbms, cluster, partitioning
+        "name": "Operator Params",
+        "next": "mqtt_params",
+        "fields": [
+            {
+                "key": "default_dbms",
+                "name": "Default Database",
+                "type": "input_text",
+                "print_after": ["true", "false"],
+                "help": "Database correlated to the operator",
+                "config": True
+            },
+            {
+                "key": "enable_cluster",
+                "name": "Enable Cluster",
+                "type": "selection",
+                "options": ["true", "false"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether or not the operator is correlated to a cluster",
+                "config": True
+            },
+            {
+                "key": "cluster_name",
+                "name": "Cluster Name",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Cluster name",
+                "config": True
+            },
+            {
+                "key": "enable_partition",
+                "name": "Enable Partitioning",
+                "type": "selection",
+                "options": ["false", "true"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether or not to enable partitioning",
+                "config": True
+            },
+            {
+                "key": "partition_column",
+                "name": "Partition Column",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Timestamp column to partition by",
+                "config": True
+            },
+            {
+                "key": "partition_interval",
+                "name": "Partition Interval",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Partition interval",
+                "config": True
+            }
+        ]
+    },
+    "mqtt_params": { # MQTT params - should only be available for nodes of type publisher || operator
+        "name": "MQTT Parameters",
+        "next": "",
+        "fields": [
+            {
+                "key": "mqtt_enable",
+                "name": "Enable MQTT",
+                "type": "selection",
+                "options": ["false", "true"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether to enable MQTT",
+                "config": True
+            },
+            {
+                "key": "broker",
+                "name": "Broker",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether to enable MQTT",
+                "config": True
+            },
+            {
+                "key": "mqtt_port",
+                "name": "MQTT Port",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT port",
+                "config": True
+            },
+            {
+                "key": "mqtt_user",
+                "name": "MQTT Username",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT username",
+                "config": True
+            },
+            {
+                "key": "mqtt_password",
+                "name": "MQTT Password",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT password",
+                "config": True
+            },
+            {
+                "key": "mqtt_topic_name",
+                "name": "Topic Name",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT topic name",
+                "config": True
+            },
+            {
+                "key": "mqtt_topic_dbms",
+                "name": "MQTT Topic Database",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT topic database",
+                "config": True
+            },
+            {
+                "key": "mqtt_topic_table",
+                "name": "MQTT Topic Name",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT topic table",
+                "config": True
+            },
+            {
+                "key": "mqtt_column_timestamp",
+                "name": "MQTT Timestamp Column",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT timestamp column name",
+                "config": True
+            },
+            {
+                "key": "mqtt_column_value_type",
+                "name": "MQTT Value Column Type",
+                "type": "selection",
+                "options": ["str", "int", "float", "bool", "timestamp"]
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT value column type",
+                "config": True
+            },
+            {
+                "key": "mqtt_column_value",
+                "name": "MQTT Value Column Value",
+                "type": "selection",
+                "options": ["str", "int", "float", "bool", "timestamp"]
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT value column name",
+                "config": True
+            }
+        ]
     }
-
 }
 
 
