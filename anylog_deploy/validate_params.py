@@ -39,15 +39,6 @@ def validate_ports(**kwargs)->bool:
     status = {}
     unqiue_values = []
 
-    # validate port number(s) within range
-    for key in kwargs:
-        if isinstance(kwargs[key], int) and (kwargs[key] < 2048 or kwargs[key] > 65535):
-            status[key] = False
-        elif not isinstance(kwargs[key], int):
-            status[key] = False
-        else:
-            status[key] = True
-
     # assert no 2 ports are the same
     if len(kwargs) > 1:
         for value in list(kwargs.values()):
@@ -58,6 +49,7 @@ def validate_ports(**kwargs)->bool:
 
     if False in list(status.values()):
         return False
+
     return True
 
 
