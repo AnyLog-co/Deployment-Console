@@ -81,3 +81,22 @@ def validate_ip_address(ip_address:str)->bool:
             status = False
 
     return status
+
+
+def format_db_name(db_name:str)->str:
+    """
+    Format logical database name
+    :args:
+        db_name:str - database name given by user
+    :params:
+        update_db_name:str - formatted database name
+    :return:
+        formatted database name, if the set database name is invalid returns `None`
+    """
+    update_db_name = None
+    if isinstance(db_name[0], str):
+        update_db_name = db_name.replace('-', '_').replace(' ', '_')
+        if update_db_name.isupper():
+            update_db_name = update_db_name.lower()
+    return update_db_name
+

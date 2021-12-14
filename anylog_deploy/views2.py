@@ -208,15 +208,16 @@ al_forms = {
         "fields": [
             {
                 "key": "default_dbms",
-                "name": "Default Database",
+                "label": "Default Database",
                 "type": "input_text",
-                "print_after": ["true", "false"],
+                "options": ["true", "false"],
+                "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Database correlated to the operator",
                 "config": True
             },
             {
                 "key": "enable_cluster",
-                "name": "Enable Cluster",
+                "label": "Enable Cluster",
                 "type": "selection",
                 "options": ["true", "false"],
                 "print_after": ["&nbsp;", "&nbsp;"],
@@ -225,7 +226,7 @@ al_forms = {
             },
             {
                 "key": "cluster_name",
-                "name": "Cluster Name",
+                "label": "Cluster Name",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Cluster name",
@@ -233,7 +234,7 @@ al_forms = {
             },
             {
                 "key": "enable_partition",
-                "name": "Enable Partitioning",
+                "label": "Enable Partitioning",
                 "type": "selection",
                 "options": ["false", "true"],
                 "print_after": ["&nbsp;", "&nbsp;"],
@@ -242,7 +243,7 @@ al_forms = {
             },
             {
                 "key": "partition_column",
-                "name": "Partition Column",
+                "label": "Partition Column",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Timestamp column to partition by",
@@ -250,7 +251,7 @@ al_forms = {
             },
             {
                 "key": "partition_interval",
-                "name": "Partition Interval",
+                "label": "Partition Interval",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Partition interval",
@@ -264,7 +265,7 @@ al_forms = {
         "fields": [
             {
                 "key": "mqtt_enable",
-                "name": "Enable MQTT",
+                "label": "Enable MQTT",
                 "type": "selection",
                 "options": ["false", "true"],
                 "print_after": ["&nbsp;", "&nbsp;"],
@@ -273,7 +274,7 @@ al_forms = {
             },
             {
                 "key": "broker",
-                "name": "Broker",
+                "label": "Broker",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Whether to enable MQTT",
@@ -281,7 +282,7 @@ al_forms = {
             },
             {
                 "key": "mqtt_port",
-                "name": "MQTT Port",
+                "label": "MQTT Port",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT port",
@@ -289,7 +290,7 @@ al_forms = {
             },
             {
                 "key": "mqtt_user",
-                "name": "MQTT Username",
+                "label": "MQTT Username",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT username",
@@ -297,7 +298,7 @@ al_forms = {
             },
             {
                 "key": "mqtt_password",
-                "name": "MQTT Password",
+                "label": "MQTT Password",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT password",
@@ -305,7 +306,7 @@ al_forms = {
             },
             {
                 "key": "mqtt_topic_name",
-                "name": "Topic Name",
+                "label": "Topic Name",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT topic name",
@@ -313,7 +314,7 @@ al_forms = {
             },
             {
                 "key": "mqtt_topic_dbms",
-                "name": "MQTT Topic Database",
+                "label": "MQTT Topic Database",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT topic database",
@@ -321,7 +322,7 @@ al_forms = {
             },
             {
                 "key": "mqtt_topic_table",
-                "name": "MQTT Topic Name",
+                "label": "MQTT Topic Name",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT topic table",
@@ -329,7 +330,7 @@ al_forms = {
             },
             {
                 "key": "mqtt_column_timestamp",
-                "name": "MQTT Timestamp Column",
+                "label": "MQTT Timestamp Column",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT timestamp column name",
@@ -337,18 +338,17 @@ al_forms = {
             },
             {
                 "key": "mqtt_column_value_type",
-                "name": "MQTT Value Column Type",
+                "label": "MQTT Value Column Type",
                 "type": "selection",
-                "options": ["str", "int", "float", "bool", "timestamp"]
+                "options": ["str", "int", "float", "bool", "timestamp"],
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT value column type",
                 "config": True
             },
             {
                 "key": "mqtt_column_value",
-                "name": "MQTT Value Column Value",
-                "type": "selection",
-                "options": ["str", "int", "float", "bool", "timestamp"]
+                "label": "MQTT Value Column Value",
+                "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT value column name",
                 "config": True
@@ -360,7 +360,6 @@ al_forms = {
 
 class Example:
     def front_page(self, request)->HttpResponse:
-
         global FIRST_PAGE_KEY
         global PAGE_COUNTER
         global PAGES_LIST
