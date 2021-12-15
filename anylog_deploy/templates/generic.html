@@ -8,12 +8,30 @@
     <meta charset="UTF-8">
     <title>Deploy AnyLog</title>
 
+
+   <script>
+        function ipAddressCheck(ipAddress)
+        {
+           var regEx = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+           if(ipAddress.value.match(regEx))
+             {
+              return true;
+             }
+           else
+             {
+             alert("Please enter a valid ip Address.");
+             return false;
+             }
+        }
+</script>
+
+
   </head>
 
 
   <body>
 
-  <form method="POST" class="post-form" >
+  <form method="POST" class="post-form" name="main_form" >
     {% csrf_token %}
     {{ form.as_p }}
 
@@ -111,6 +129,16 @@
                 <input type="password" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}">
             {%  endif %}
 
+        {% elif field.type == "input_ip" %}
+
+            {% if field.label %}
+                <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
+             {% endif %}
+            {% if field.required == True %}
+                <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}" required onchange ="ipAddressCheck(document.main_form.{{field.key}})"/>
+            {%  else %}
+                <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}" onchange ="ipAddressCheck(document.main_form.{{field.key}})"/>
+            {%  endif %}
 
         {% elif field.type == "input_number" %}
 

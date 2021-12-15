@@ -49,7 +49,7 @@ al_forms = {
                 "type": "selection",
                 "options": ["", "none", "rest", "master", "operator", "publisher",
                             "query", "single-node", "single-node-publisher"],
-                "next": ["", "operator_params", "operator_params", "operator_params", "operator_params", "", "", "", ""],
+                "next": ["", "network_configs", "operator_params", "operator_params", "operator_params", "", "", "", ""],
 
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Type of node AnyLog should run",
@@ -183,7 +183,7 @@ al_forms = {
                 "section": "networking",
                 "key": "external_ip",
                 "label": "External IP",
-                "type": "input_text",
+                "type": "input_ip",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "IP address to be used as the external ip",
                 "config": True
@@ -192,7 +192,7 @@ al_forms = {
                 "section": "networking",
                 "key": "local_ip",
                 "label": "Local IP",
-                "type": "input_text",
+                "type": "input_ip",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "IP address to be used as the local ip",
                 "config": True
