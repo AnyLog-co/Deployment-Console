@@ -19,7 +19,7 @@
              }
            else
              {
-             alert("Please enter a valid ip Address.");
+             alert("Please enter a valid IP address");
              return false;
              }
         }
@@ -139,6 +139,7 @@
             {%  else %}
                 <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}" onchange ="ipAddressCheck(document.main_form.{{field.key}})"/>
             {%  endif %}
+
 
         {% elif field.type == "input_number" %}
 
