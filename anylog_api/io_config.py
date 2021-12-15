@@ -1,7 +1,8 @@
 import configparser
 import os
 
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)).rsplit('anylog_conn', 1)[0], "/config/new-config.ini")
+ROOT_DIR_PATH = os.path.dirname(os.path.abspath(__file__)).rsplit('anylog_conn', 1)[0]
+CONFIG_FILE = os.path.join(ROOT_DIR_PATH, 'config', 'new-config.ini')
 
 def read_configs(config_file:str=CONFIG_FILE)->dict:
     """
@@ -38,7 +39,7 @@ def read_configs(config_file:str=CONFIG_FILE)->dict:
     return data
 
 
-def write_configs(config_data:dict, config_file:str=CONFIG_FILE)->str:
+def write_configs(config_file:str=CONFIG_FILE, config_data:dict={})->str:
     """
     Write configurations to file
     :args:

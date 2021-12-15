@@ -2,11 +2,17 @@ import os
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
+import anylog_api.io_config as io_config
 
 FIRST_PAGE_KEY = "base_configs"      # First page ID
 
 PAGE_COUNTER = 0                    # Number of pages process
 PAGES_LIST = []                     # An array with pages visited
+
+# Config directory params
+CONFIG_DIR_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
+if not os.path.isdir(CONFIG_DIR_PATH):
+    os.makedirs(CONFIG_DIR_PATH)
 
 '''
 Form options:
@@ -597,13 +603,12 @@ def set_previous():
         PAGE_COUNTER = 0
 
     return previous_page_name
+
+
 # ------------------------------------------------------------------------------------------------------
 # Create the config file + Output the info to a config file
 # ------------------------------------------------------------------------------------------------------
 def write_config_file():
-    '''
-    Write the config file
-    '''
     global al_forms
     global PAGE_COUNTER
     global PAGES_LIST
@@ -619,13 +624,11 @@ def write_config_file():
                 if not "config" in field or field["config"] is True:       # field["config"] set to false makes the value removed from the output file
                     if field['section'] not in config_params:
                         config_params[field['section']] = {}
-                    config_params[field['section']][field["key"]] = field['value']
+                    if isinstance(field['value'], bool):
+                        config_params[field['section']][field["key"]] = str(field['value']).lower()
+                    elif field['value'] != '':
+                        config_params[field['section']][field["key"]] = field['value']
 
-
-
-
-
-
-
-    # write to file
-    pass
+        if counter == PAGE_COUNTER - 1:
+            config_file = os.path.join(CONFIG_DIR_PATH, '%s.ini' % config_params['general']['node_name'])
+            errors = io_config.write_configs(config_file=config_file, config_data=config_params)
