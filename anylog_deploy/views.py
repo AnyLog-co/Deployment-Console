@@ -1,485 +1,533 @@
 import os
-import pkgutil
-import re
-import time
-
-import anylog_deploy.forms as forms
-import anylog_deploy.params as params
-
 from django.http.response import HttpResponse
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-import anylog_api.io_config as io_config
-if pkgutil.find_loader('docker'):
-    import anylog_api.docker_deployment as docker_deployment
 
-CONFIG_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'configs')
+FIRST_PAGE_KEY = "base_configs"      # First page ID
 
-NODE_TYPES = [
-    'none',
-    'rest',
-    'master',
-    'operator',
-    'publisher',
-    'query',
-    'single-node',
-    'single-node-publisher'
-]
+PAGE_COUNTER = 0                    # Number of pages process
+PAGES_LIST = []                     # An array with pages visited
+
+'''
+Form options:
+    name - the name of the form which appears on the title
+    next - the key of the page, None - ends the page inputs and writes the file
+    fields - a list of input fields for every form
+        type -  "selection", "input_text", "input_number", "button_submit", "checkbox"
+        label - text before the input field
+        print_before - list of text strings printed before the label and the input including "&nbsp;" and "<br/>"
+        print_after - list of text strings printed before the label and the input including "&nbsp;" and "<br/>"
+        options - selection options in selection field
+        config - True/False - if included and set to False, is not included in the config file
+        help - text with mouse hover
+        required - Optional for "input_text" and "input_number"
+        min - min value for number field
+        max - max value for number field
+'''
+
+al_forms = {
+    "base_configs" : { # Basic node type & build configuration
+        "name" : "Base Configs",
+        "next" : "general_info",
+        "fields" : [
+            {
+                "key" : "build",
+                "label" : "Build",
+                "type" : "selection",
+                "options" : ["", "predevelop"],
+                "print_after" : ["&nbsp;","&nbsp;"],
+                "help" : "AnyLog version to download from Docker Hub",
+                "config" : True,
+                "required" : True
+            },
+            {
+                "key": "node_type",
+                "label": "Node Type",
+                "type": "selection",
+                "options": ["", "none", "rest", "master", "operator", "publisher",
+                            "query", "single-node", "single-node-publisher"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Type of node AnyLog should run",
+                "config": True,
+                "required" : True
+            }
+        ]
+    },
+    "general_info": { # General information & authentication params
+        "name": "General Information",
+        "next": "network_configs",
+        "fields" : [
+            {
+                "key" : "node_name",
+                "label" : "Node Name",
+                "type" : "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help" : "Name correlated with the node",
+                "config" : True,                   
+            },
+            {
+                "key": "company_name",
+                "label": "Company Name",
+                "type": "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Company correlated with policies declared via this node",
+                "config": True
+            },
+            { # Optional
+                "key": "location",
+                "label": "Location",
+                "type": "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Machine location - coordinates location is accessible via Grafana Map visualization",
+                "config": True
+            },
+            {
+                "key": "authentication",
+                "label": "Authentication",
+                "type": "selection",
+                "options": ["false", "true"],
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Whether or not to enable authentication",
+                "config": True
+            },
+            {
+                "key": "username",
+                "label": "Authentication User",
+                "type": "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Authentication username",
+                "config": True
+            },
+            {
+                "key": "password",
+                "label": "Authentication Password",
+                "type": "input_text",
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Authentication password correlated to user",
+                "config": True
+            },
+            {
+                "key": "auth_type",
+                "label": "Authentication Type",
+                "type": "selection",
+                "options": ["admin", "user"],
+                "print_after": ["&nbsp;","&nbsp;"],
+                "help": "Authentication user type",
+                "config": True
+            }
+        ]
+    },
+    "network_configs": { # network configurations
+        "name": "Network Configurations",
+        "next": "database_configs",
+        "fields": [
+            {
+                "key": "anylog_tcp_port",
+                "label": "TCP Port",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "TCP port for node used to communicate with other nodes in the network",
+                "config": True,  
+            },
+            {
+                "key": "anylog_rest_port",
+                "label": "REST Port",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "REST port to communicate against with the AnyLog instance",
+                "config": True,  
+            },
+            {
+                "key": "master_node",
+                "label": "Master Node",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "TCP connection information for master node",
+                "config": True,  
+            },
+
+            # Optional params
+            {
+                "key": "anylog_broker_port",
+                "label": "Local Broker Port",
+                "type":"input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "AnyLog broker port",
+                "config": True
+            },
+            {
+                "key": "external_ip",
+                "label": "External IP",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "IP address to be used as the external ip",
+                "config": True
+            },
+            {
+                "key": "local_ip",
+                "label": "Local IP",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "IP address to be used as the local ip",
+                "config": True
+            }
+       ]
+    },
+    "database_configs": { # database params
+        "name": "Database Configurations",
+        "next": "operator_params",
+        "fields": [
+            {
+                "key": "db_type",
+                "label": "Database Type",
+                "type": "selection",
+                "options": ["", "sqlite", "psql"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Type of database to be used by the AnyLog node",
+                "config": True,  
+            },
+            {
+                "key": "db_user",
+                "label": "Database Credentials",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Database credentials (ex. ${USER}@${IP}:${PASSWORD})",
+                "config": True,
+            },
+            {
+                "key": "db_port",
+                "label": "Database Port",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Database access port",
+                "config": True,
+            }
+        ]
+    },
+    "operator_params": { # operator params - default dbms, cluster, partitioning
+        "name": "Operator Params",
+        "next": "mqtt_params",
+        "fields": [
+            {
+                "key": "default_dbms",
+                "label": "Default Database",
+                "type": "input_text",
+                "options": ["true", "false"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Database correlated to the operator",
+                "config": True
+            },
+            {
+                "key": "enable_cluster",
+                "label": "Enable Cluster",
+                "type": "selection",
+                "options": ["true", "false"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether or not the operator is correlated to a cluster",
+                "config": True
+            },
+            {
+                "key": "cluster_name",
+                "label": "Cluster Name",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Cluster name",
+                "config": True
+            },
+            {
+                "key": "enable_partition",
+                "label": "Enable Partitioning",
+                "type": "selection",
+                "options": ["false", "true"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether or not to enable partitioning",
+                "config": True
+            },
+            {
+                "key": "partition_column",
+                "label": "Partition Column",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Timestamp column to partition by",
+                "config": True
+            },
+            {
+                "key": "partition_interval",
+                "label": "Partition Interval",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Partition interval",
+                "config": True
+            }
+        ]
+    },
+    "mqtt_params": { # MQTT params - should only be available for nodes of type publisher || operator
+        "name": "MQTT Parameters",
+        "next": "",
+        "fields": [
+            {
+                "key": "mqtt_enable",
+                "label": "Enable MQTT",
+                "type": "selection",
+                "options": ["false", "true"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether to enable MQTT",
+                "config": True
+            },
+            {
+                "key": "broker",
+                "label": "Broker",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether to enable MQTT",
+                "config": True
+            },
+            {
+                "key": "mqtt_port",
+                "label": "MQTT Port",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT port",
+                "config": True
+            },
+            {
+                "key": "mqtt_user",
+                "label": "MQTT Username",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT username",
+                "config": True
+            },
+            {
+                "key": "mqtt_password",
+                "label": "MQTT Password",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT password",
+                "config": True
+            },
+            {
+                "key": "mqtt_topic_name",
+                "label": "Topic Name",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT topic name",
+                "config": True
+            },
+            {
+                "key": "mqtt_topic_dbms",
+                "label": "MQTT Topic Database",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT topic database",
+                "config": True
+            },
+            {
+                "key": "mqtt_topic_table",
+                "label": "MQTT Topic Name",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT topic table",
+                "config": True
+            },
+            {
+                "key": "mqtt_column_timestamp",
+                "label": "MQTT Timestamp Column",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT timestamp column name",
+                "config": True
+            },
+            {
+                "key": "mqtt_column_value_type",
+                "label": "MQTT Value Column Type",
+                "type": "selection",
+                "options": ["str", "int", "float", "bool", "timestamp"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT value column type",
+                "config": True
+            },
+            {
+                "key": "mqtt_column_value",
+                "label": "MQTT Value Column Value",
+                "type": "input_text",
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "MQTT value column name",
+                "config": True
+            }
+        ]
+    }
+}
 
 
-class DeploymentViews:
+class Example:
     def front_page(self, request)->HttpResponse:
-        """
-        Page offering to either use an existing config file or create config file & deploy configs
-        :HTML file:
-            deployment_front_page.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            config_params:forms.SelectConfig - call to correlated forms
-            self.env_params:dict - environment params
-            self.config_file:str  - configuration file
-                preset_config_file:str - a config file selected from configs/
-                external_config_file:str - manual input of config file
-        :redriect:
-            --> stay - if not is set
-            --> deploy_anylog.html - if selecting an existing config file
-            --> base_configs.html - if "Configure New Node" button
-        """
-        self.env_params = {
-            'general': {},
-            'authentication': {},
-            'networking': {},
-            'database': {},
-            'cluster': {},
-            'partition': {},
-            'mqtt': {},
-        }
+        global FIRST_PAGE_KEY
+        global PAGE_COUNTER
+        global PAGES_LIST
+        global al_forms
 
-        self.config_file = None
-        preset_config_file = ''
-        external_config_file = ''
+        selection_list = None
+        save_button = False
 
         if request.method == 'POST':
-            config_params = forms.SelectConfig(request.POST)
-            if config_params.is_valid():
-                preset_config_file = request.POST.get('preset_config_file') # config file in configs/
-                external_config_file = request.POST.get('external_config_file') # manual input of config file
-                external_config_file = os.path.expandvars(os.path.expanduser(external_config_file))
-
-                if preset_config_file != '' and os.path.isfile(preset_config_file):
-                    self.config_file = preset_config_file
-                elif external_config_file != '' and os.path.isfile(external_config_file):
-                    self.config_file = external_config_file
-            if self.config_file is not None:
-                self.env_params = io_config.read_configs(config_file=self.config_file)
-            return HttpResponseRedirect('basic-configs/')
-        else:
-            config_params = forms.SelectConfig()
-        return render(request, "deployment_front_page.html", {'form': config_params})
-
-    def deploy_anylog(self, request)->HttpResponse:
-        """
-        Once user either selects a config file or completes config form(s) user select what to deploy & executes
-        :HTML file:
-            deploy_anylog.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            deploy_config:forms.DeployAnyLog - call to correlated forms
-            status:bool - status
-            messages:list - list of error messages
-            update_anylog:bool - whether to update AnyLog (AnyLog gets deployed by default)
-            psql:bool - whether to deploy Postgres
-            grafana:bool - whether to deploy Grafana
-        :redriect:
-            --> stay w/ message
-            --> deployment_front_page.html when pressing "Start Over" button
-        """
-        status = True
-        messages = []
-        base_configs = forms.BaseInfo()
-        docker_password = None
-        update_anylog = False
-        psql = False
-        grafana = False
-
-
-        # Extract configuration information
-        if self.config_file is None:
-            try:
-                self.config_file = os.path.join(CONFIG_FILE_PATH, '%s.ini' % self.env_params['general']['node_name'])
-            except:
-                return render(request, 'deploy_anylog.html',
-                              {'form': base_configs,
-                               'node_reply': 'Missing NODE_NAME in set parameters. Please start over'})
+            current_page = request.POST.get('page_name')
+            if request.POST.get('show_selections'):
+                # Keep the same page + show selections
+                update_config(request)
+                next_page_name = current_page
+                selection_list = set_selection()         # This list is used to print the selection on the web page
+            elif request.POST.get('previous_web_page'):
+                next_page_name = set_previous()  # Set on the previous page or the first page
+            elif request.POST.get('first_web_page'):
+                next_page_name = FIRST_PAGE_KEY  # Set on the previous page or the first page
+                PAGE_COUNTER = 0
+            elif request.POST.get('save_config'):
+                update_config(request)  # go to the last page
+                write_config_file()
+                next_page_name = current_page  # repeat page with option to save data
             else:
-                messages = io_config.write_configs(config_data=self.env_params, config_file=self.config_file)
-                if messages is not None:
-                    return render(request, 'deploy_anylog.html', {'form': base_configs, 'node_reply': messages})
-
-
-        if os.path.isfile(self.config_file): # extract values from config file
-            env_params = io_config.read_configs(config_file=self.config_file)
-            if not io_config.validate_config(env_params=env_params):
-                return render(request, 'deploy_anylog.html',
-                              {'form': base_configs, 'node_reply': 'Failed to validate one or more params'})
-
-        if not pkgutil.find_loader('docker'):
-            messages='docker package unable to be located, cannot actually deploy docker container(s) at this time.'
-        # Extract values from forms
-        if request.method == 'POST' and messages != {}:
-            deploy_config = forms.DeployAnyLog(request.POST)
-            if deploy_config.is_valid():
-                docker_password = request.POST.get('password')
-                if request.POST.get('update_anylog') is not None:
-                    update_anylog = True
-                # Deploy Postgres is checked
-                if request.POST.get('psql') is not None:
-                    if 'DB_USER' not in env_params:
-                        messages.append("Missing database credentials. Setting db_user to: 'anylog@127.0.0.1:demo'")
-                        env_params['DB_USER'] = 'anylog@127.0.0.1:demo'
-                    status, errors = docker_deployment.deploy_postgres_container(user_info=env_params['DB_USER'],
-                                                                                 timezone='utc')
-                    if status is False and len(errors) != 0:
-                        for error in errors:
-                            messages.append(error)
-                    elif status is False:
-                        messages.append('Failed to deploy Postgres container')
-                    else:
-                        time.sleep(15)
-                # Deploy Grafana is checked
-                if request.POST.get('grafana'):
-                    errors = docker_deployment.deploy_grafana_container()
-                    if errors is not []:
-                        for error in errors:
-                            messages.append(error)
-                # Deploy AnyLog
-                if status is True and pkgutil.find_loader('docker'):
-                    status, errors = docker_deployment.deploy_anylog_container(env_params=env_params, timezone='utc',
-                                                                               docker_password=docker_password,
-                                                                               update_anylog=update_anylog)
-                    if errors is not []:
-                        for error in errors:
-                            messages.append(error)
-
-        deploy_config = forms.DeployAnyLog()
-        return render(request, 'deploy_anylog.html', {'form': deploy_config, 'node_reply': messages})
-
-    def base_configs(self, request)->HttpResponse:
-        """
-        Build and node_tye setup
-        :HTML file:
-            base_configs.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            basic_config:forms.BasicInfo - call to correlated forms
-        :redirect:
-            - if NODE_TYPE == none: empty-node-configs
-            - if NODE_TYPE != none and NODE_TYPE != '': general-configs
-            - other: stay
-        """
-        env_params = {}
-        if 'BUILD' in self.env_params:
-            env_params['build'] = self.env_params['BUILD']
-        if 'NODE_TYPE' in self.env_params:
-            env_params['node_type'] = self.env_params['NODE_TYPE']
-
-        if request.method == 'POST':
-            basic_config = forms.BaseInfo(request.POST)
-            if basic_config.is_valid():
-                self.env_params['general']['build'] = request.POST.get('build')
-                self.env_params['general']['node_type'] = request.POST.get('node_type')
-                if self.env_params['general']['node_type'] == 'none':
-                    return HttpResponseRedirect('../none-configs/')
-                else:
-                    return HttpResponseRedirect('../general-configs/')
+                # get next page
+                next_page_name = update_config(request)
+                if not next_page_name or next_page_name == "None":
+                    # No more pages
+                    next_page_name = current_page # repeat page with option to save data
+                    save_button = True      # add save button
         else:
-            basic_config = forms.BaseInfo()
-            return render(request, 'base_configs.html', {'form': basic_config})
+            next_page_name = set_previous()             # Set on the previous page or the first page
 
-    def none_configs(self, request)->HttpResponse:
-        """
-        Configuration options for an empty node
-            - node_name
-            - database type (optional)
-            - database credentials (optional)
-            - database port (optional)
-        :HTML file:
-            empty_node_configs.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            db_info:dict - database connection information
-                - username
-                - address
-                - password
-            messages:list - list of error messages
-            none_config:forms.NoneConfig - call to form questions related to node of type None
-        :redirect:
-            --> stays if missing NODE_NAME
-            --> goes to deploy-anylog/ when at least NODE_NAME is set
-
-        """
-        db_info = {
-            'db_user': None,
-            'db_addr': None,
-            'db_pass': None
-        }
-        none_config = forms.NoneConfigs()
-
-        if request.method == 'POST':
-            none_config = forms.NoneConfigs(request.POST)
-            if none_config.is_valid():
-                self.env_params['general']['node_name'] = request.POST.get('node_name')
-                self.env_params['database']['db_type'] = request.POST.get('db_type')
-                self.env_params['database']['db_port'] = request.POST.get('db_port')
-                for param in db_info:
-                    db_info[param] = request.POST.get(param)
-                if all(db_info[param] != '' for param in db_info):
-                    self.env_params['database']['db_user'] = '%s@%s:%s' % (db_info['db_user'], db_info['db_addr'],
-                                                                           db_info['db_pass'])
-                return HttpResponseRedirect('../deploy-anylog/')
-
-        return render(request, 'empty_node_configs.html', {'form': none_config})
-
-    def general_configs(self, request)->HttpResponse:
-        """
-        general configuration information
-            - node_name
-            - enable authentication (optional)
-            - authentication credentials & type (optional)
-        :HTML file:
-            general_configs.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            general_config:forms.GeneralInfo - call to general info form
-        :redirect:
-            - if POST goto network configs
-            - else stay
-        """
-        if request.method == 'POST':
-            general_config = forms.GeneralInfo(request.POST)
-            if general_config.is_valid():
-                self.env_params['general']['node_name'] = request.POST.get('node_name')
-                self.env_params['general']['company_name'] = request.POST.get('company_name')
-                if request.POST.get('location') != '':
-                    self.env_params['general']['location'] = request.POST.get('location')
-                self.env_params['authentication']['authentication'] = 'false'
-                if request.POST.get('authentication') is not None:
-                    self.env_params['authentication']['authentication'] = 'true'
-                self.env_params['authentication']['username'] = request.POST.get('username')
-                self.env_params['authentication']['password'] = request.POST.get('password')
-                self.env_params['authentication']['auth_type'] = request.POST.get('auth_type')
-                if self.env_params['authentication']['authentication'] == 'true' and self.env_params['authentication']['username']  == '':
-                    self.env_params['authentication']['username'] = 'anylog'
-                if self.env_params['authentication']['authentication'] == 'true' and self.env_params['authentication']['password']  == '':
-                    self.env_params['authentication']['password'] = 'demo'
-                return HttpResponseRedirect('../network-configs/')
+        # Organize a list of pages to consider
+        if next_page_name in PAGES_LIST:
+            # The page exists - make this page the las page to consider
+            PAGE_COUNTER = PAGES_LIST.index(next_page_name)
         else:
-            general_config = forms.GeneralInfo()
-            return render(request, 'general_configs.html', {'form': general_config})
-
-    def network_configs(self, request)->HttpResponse:
-        """
-        network configuration information
-            - External IP (optional)
-            - Local IP (optional)
-            - TCP port
-            - REST port
-            - Broker port (optional)
-            - master_node
-        :HTML file:
-            network_configs.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            network_config:forms.NetworkingConfigs - call to networking configs
-            messages:list - list of error messages
-        :redirect:
-            - if POST goto network configs
-            - else stay
-        """
-        network_config = forms.NetworkingConfigs()
-        if request.method == 'POST':
-            network_config = forms.NetworkingConfigs(request.POST)
-            if network_config.is_valid():
-                self.env_params['networking']['ip'] = request.POST.get('external_ip')
-                self.env_params['networking']['local_ip'] = request.POST.get('local_ip')
-                anylog_tcp_port = request.POST.get('anylog_tcp_port')
-                anylog_rest_port = request.POST.get('anylog_rest_port')
-                anylog_broker_port = request.POST.get('anylog_broker_port')
-                if anylog_tcp_port == anylog_rest_port or anylog_tcp_port == anylog_broker_port or anylog_rest_port == anylog_broker_port:
-                    return render(request, "network_configs.html", {'form': network_config, 'node_reply': 'No two ports can have the same value'})
-                else:
-                    self.env_params['networking']['anylog_tcp_port'] = anylog_tcp_port
-                    self.env_params['networking']['anylog_rest_port'] = anylog_rest_port
-                    self.env_params['networking']['anylog_broker_port'] = anylog_broker_port
-
-                master_node = request.POST.get('master_node')
-                if not bool(re.match(r'^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:[2-9][0-9][4-9][0-9]$', master_node)):
-                    return render(request, "network_configs.html", {'form': network_config, 'node_reply': 'Invalid format for master node (Format: IP:PORT)'})
-                else:
-                    self.env_params['networking']['master_node'] = master_node
-               
-                if self.env_params['general']['node_type'] in ['rest', 'operator', 'single-node']:
-                    return HttpResponseRedirect('../operator-database-configs/')
-                else:
-                    return HttpResponseRedirect('../generic-database-configs/')
-
-        return render(request, "network_configs.html", {'form': network_config})
-
-    def database_configs(self, request)->HttpResponse:
-        """
-        Database configuration for nodes that aren't necessarily of type operator
-            - database type
-            - database credentials
-            - databse port
-        :HTML page:
-            db_configs.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            database_config:forms.DBConfigs - database configuration form call
-        :redirect:
-            - if NODE_TYPE == single-node-publisher || NODE_TYPE == publisher goto mqtt-configs/
-            - if NODE_TYPE != single-node-publisher && NODE_TYPE != publisher goto deploy-anylog/
-            - else stay
-        """
-        database_config = forms.DBConfigs()
-        if request.method == 'POST':
-            database_config = forms.DBConfigs(request.POST)
-            if database_config.is_valid():
-                self.env_params['database']['db_type'] = request.POST.get('db_type')
-                self.env_params['database']['db_user'] = '%s@%s:%s' % (request.POST.get('db_user'),
-                                                                       request.POST.get('db_addr'),
-                                                                       request.POST.get('db_pass'))
-                self.env_params['database']['db_port'] = request.POST.get('db_port')
-                if self.env_params['general']['node_type'] in ['publisher', 'single-node-publisher']:
-                    return HttpResponseRedirect('../mqtt-configs/')
-                return HttpResponseRedirect('../deploy-anylog/')
-
-        return render(request, 'db_configs.html', {'form': database_config})
-
-
-    def operator_database_configs(self, request)->HttpResponse:
-        """
-        (Database) configuration for nodes that can/will run an operator process
-            - database type
-            - database credentials
-            - database port
-            - default database name
-            - enable cluster
-                - cluster name
-            - enable partition
-                - partition column (of type timestamp)
-                - partition interval
-        :HTML page:
-            operator_configs.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            database_config:forms.DBOperatorConfigs - database configuration form call
-            messages:list - list of error messages
-        :redirect:
-            - if NODE_TYPE == single-node-publisher || NODE_TYPE == publisher goto mqtt-configs/
-            - if NODE_TYPE != single-node-publisher && NODE_TYPE != publisher goto deploy-anylog/
-            - else stay
-        """
-        database_config = forms.DBOperatorConfigs()
-        messages = []
-        if request.method == 'POST':
-            database_config = forms.DBOperatorConfigs(request.POST)
-            if database_config.is_valid():
-                # Databasee configs
-                self.env_params['database']['db_type'] = request.POST.get('db_type')
-                self.env_params['database']['db_user'] = '%s@%s:%s' % (request.POST.get('db_user'),
-                                                                       request.POST.get('db_addr'),
-                                                                       request.POST.get('db_pass'))
-                self.env_params['database']['db_port'] = request.POST.get('db_port')
-                self.env_params['database']['default_dbms'] = request.POST.get('default_dbms').lower().replace('-', '_').replace(' ', '_')
-                if self.env_params['general']['node_type'] in ['operator', 'single-node'] and not request.POST.get('default_dbms'):
-                    messages.append('For node of type %s default database name is required' % self.env_params['general']['node_type'])
-
-                # cluster configs
-                self.env_params['cluster']['enable_cluster'] = 'false'
-                if request.POST.get('enable_cluster') is not None:
-                    self.env_params['cluster']['enable_cluster'] = 'true'
-                self.env_params['cluster']['cluster_name'] = request.POST.get('cluster_name')
-                if self.env_params['cluster']['enable_cluster'] == 'true' and not self.env_params['cluster']['cluster_name']:
-                   messages.append('An enabled cluster must have a cluster name')
-
-                # Partitions
-                self.env_params['partition']['enable_partition'] = 'false'
-                self.env_params['partition']['partition_column'] = request.POST.get('partition_column')
-                self.env_params['partition']['partition_interval'] = request.POST.get('partition_interval')
-                if request.POST.get('enable_partition') is not None:
-                    self.env_params['partition']['enable_partition'] = 'true'
-                if self.env_params['partition']['enable_partition'] == 'true' and not self.env_params['partition']['partition_column']:
-                    messages.append('An enabled cluster must have a partitioned column of type `timestamp`')
-                if self.env_params['partition']['enable_partition'] == 'true' and not self.env_params['partition']['partition_interval']:
-                    messages.append('An enabled cluster must have partitioned intervals')
-                elif self.env_params['partition']['enable_partition'] == 'true':
-                    status = False
-                    for param in ['second', 'minute', 'hour', 'day', 'month']:
-                        if param in self.env_params['partition']['partition_interval']:
-                            status = True
-                    if status is False:
-                        messages.append('Partition interval contains an invalid period valuee')
-
-            if len(messages) > 0:
-                print(messages)
-                return render(request, 'operator_configs.html', {'form': database_config, 'node_reply': messages})
+            if PAGE_COUNTER == len(PAGES_LIST):
+                PAGES_LIST.append(next_page_name)
             else:
-                return HttpResponseRedirect('../mqtt-configs/')
+                PAGES_LIST[PAGE_COUNTER] = next_page_name
+        PAGE_COUNTER += 1
 
-        return render(request, 'operator_configs.html', {'form': database_config})
+        al_forms[next_page_name]["page_name"] = next_page_name      # store the page key to analyze the data
 
-    def mqtt_configs(self, request)->HttpResponse:
-        """
-        MQTT related configuration
-        :HTML file:
-            mqtt_configs.html
-        :args:
-            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
-        :params:
-            mqtt_config:forms.MqttConfigs - call to MQTT forms
-        :redirect:
-            --> deploy-anylog
-            --> stay if something is expcected but is missing
-        """
-        mqtt_config = forms.MqttConfigs()
-        if request.method == 'POST':
-            mqtt_config = forms.MqttConfigs(request.POST)
-            if mqtt_config.is_valid():
-                self.env_params['mqtt']['mqtt_enable'] = 'false'
-                if request.POST.get('mqtt_enable') is not None:
-                    self.env_params['mqtt']['mqtt_enable'] = True
+        al_forms[next_page_name]["save_button"] = save_button
+        if selection_list:
+            # add selection
+            al_forms[next_page_name]["selection_header"] = ("Page", "Field", "Key", "Value")
+            al_forms[next_page_name]["selection_list"] = selection_list
+        else:
+            # delete the selection
+            if "selection_list" in al_forms[next_page_name]:
+                del al_forms[next_page_name]["selection_list"]
 
-                # connection information for MQTT
-                self.env_params['mqtt']['broker'] = request.POST.get('mqtt_broker')
-                self.env_params['mqtt']['mqtt_port'] = request.POST.get('mqtt_port')
-                self.env_params['mqtt']['mqtt_user'] = request.POST.get('mqtt_user')
-                self.env_params['mqtt']['mqtt_password'] = request.POST.get('mqtt_pass')
-                self.env_params['mqtt']['mqtt_log'] = 'false'
-                if request.POST.get('mqtt_log') is not None:
-                    self.env_params['mqtt']['mqtt_log'] = 'true'
+        return render(request, 'generic.html', al_forms[next_page_name])
 
-                # MQTT topic variables
-                self.env_params['mqtt']['mqtt_topic_name'] = request.POST.get('mqtt_topic_name')
-                self.env_params['mqtt']['mqtt_topic_dbms'] = request.POST.get('mqtt_topic_dbms')
-                self.env_params['mqtt']['mqtt_topic_table'] = request.POST.get('mqtt_topic_table')
-                self.env_params['mqtt']['mqtt_column_timestamp'] = request.POST.get('mqtt_column_timestamp')
-                self.env_params['mqtt']['mqtt_column_value_type'] = request.POST.get('mqtt_column_value_type')
-                self.env_params['mqtt']['mqtt_column_value'] = request.POST.get('mqtt_column_value')
+# ------------------------------------------------------------------------------------------------------
+# Update the form info with the user selections on the form page
+# ------------------------------------------------------------------------------------------------------
+def update_config(request):
+    '''
+    Use the keys from al_forms to retrieve the values set on th eforms
+    '''
 
-                return HttpResponseRedirect('../deploy-anylog/')
+    post_data = request.POST
+    page_name = post_data.get('page_name')
+    next_page = post_data.get('next_page')
 
-        return render(request, 'mqtt_configs.html', {'form': mqtt_config})
+    # get field values
+    form_defs = al_forms[page_name]
+    fields = form_defs["fields"]
 
-    def start_file(self, request)->HttpResponse:
-        empty_form = forms.EmptyForm()
-        return render(request, 'base_configs', {'form': empty_form})
+    for field in fields:
+        field_type = field["type"]
+        key =  field["key"]
+        value = post_data.get(key)
 
+        if field_type == "button_submit" or field_type == "checkbox":
+            if value:
+                value = True
+            else:
+                value = False
+
+        field["value"] = value
+
+    return next_page
+# ------------------------------------------------------------------------------------------------------
+# Update a list of selections
+# ------------------------------------------------------------------------------------------------------
+def set_selection():
+
+    global FIRST_PAGE_KEY
+    global PAGE_COUNTER
+    global PAGES_LIST
+    global al_forms
+
+    selections_list = []
+
+    for page_id in range (PAGE_COUNTER):
+
+        page_key = PAGES_LIST[page_id]
+        # get field values
+        form_defs = al_forms[page_key]
+        fields = form_defs["fields"]
+
+        for index, field in enumerate(fields):
+
+            if not index:
+                page_name = form_defs["name"]
+            else:
+                page_name = ""
+
+            if "key" in field and "value" in field:
+                if "label" in field:
+                    label = field["label"]
+                else:
+                    label = ""
+
+                selections_list.append((page_name, label, field["key"], field["value"]))
+
+    return selections_list
+
+# ------------------------------------------------------------------------------------------------------
+# Return and set status on the previous page or on the first page if no previous
+# ------------------------------------------------------------------------------------------------------
+def set_previous():
+    global FIRST_PAGE_KEY
+    global PAGE_COUNTER
+    global PAGES_LIST
+
+    if PAGE_COUNTER > 1:
+        PAGE_COUNTER -= 2  # Go back
+        previous_page_name = PAGES_LIST[PAGE_COUNTER]
+    else:
+        previous_page_name = FIRST_PAGE_KEY  # First page to display
+        PAGE_COUNTER = 0
+
+    return previous_page_name
+# ------------------------------------------------------------------------------------------------------
+# Create the config file + Output the info to a config file
+# ------------------------------------------------------------------------------------------------------
+def write_config_file():
+    '''
+    Write the config file
+    '''
+    global al_forms
+    global PAGE_COUNTER
+    global PAGES_LIST
+
+    config_file = ""
+
+    for counter in range(PAGE_COUNTER):
+
+        page_name = PAGES_LIST[counter]
+        form_defs = al_forms[page_name]
+        fields = form_defs["fields"]
+
+        for field in fields:
+
+            if "key" in field and "value" in field:
+                if not "config" in field or field["config"] == False:       # field["config"] set to false makes the value removed from the output file
+                    config_file.append("\n\r" + field["key"] + '=' + field["value"])
+
+
+    # write to file
+    pass
