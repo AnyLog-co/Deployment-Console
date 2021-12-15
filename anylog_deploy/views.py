@@ -637,6 +637,8 @@ def write_config_file():
                 if not "config" in field or field["config"] is True:       # field["config"] set to false makes the value removed from the output file
                     if field['section'] not in config_params:
                         config_params[field['section']] = {}
+                    if field['value'] == 'generic':
+                        field['value'] = 'none'
                     if isinstance(field['value'], bool):
                         config_params[field['section']][field["key"]] = str(field['value']).lower()
                     elif field['value'] != '':
