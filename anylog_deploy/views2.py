@@ -37,7 +37,8 @@ al_forms = {
                 "options" : ["", "predevelop"],
                 "print_after" : ["&nbsp;","&nbsp;"],
                 "help" : "AnyLog version to download from Docker Hub",
-                "config" : True,                   
+                "config" : True,
+                "required" : True
             },
             {
                 "key": "node_type",
@@ -47,7 +48,8 @@ al_forms = {
                             "query", "single-node", "single-node-publisher"],
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Type of node AnyLog should run",
-                "config": True,  
+                "config": True,
+                "required" : True
             }
         ]
     },
@@ -366,21 +368,31 @@ class Example:
         global al_forms
 
         selection_list = None
+        save_button = False
+
         if request.method == 'POST':
+            current_page = request.POST.get('page_name')
             if request.POST.get('show_selections'):
                 # Keep the same page + show selections
                 update_config(request)
-                next_page_name = request.POST.get('page_name')
+                next_page_name = current_page
                 selection_list = set_selection()         # This list is used to print the selection on the web page
             elif request.POST.get('previous_web_page'):
                 next_page_name = set_previous()  # Set on the previous page or the first page
+            elif request.POST.get('first_web_page'):
+                next_page_name = FIRST_PAGE_KEY  # Set on the previous page or the first page
+                PAGE_COUNTER = 0
+            elif request.POST.get('save_config'):
+                update_config(request)  # go to the last page
+                write_config_file()
+                next_page_name = current_page  # repeat page with option to save data
             else:
                 # get next page
                 next_page_name = update_config(request)
-                if not next_page_name:
-                    write_config_file()
-                    next_page_name = FIRST_PAGE_KEY     # FIRST form page
-                    PAGE_COUNTER = 0
+                if not next_page_name or next_page_name == "None":
+                    # No more pages
+                    next_page_name = current_page # repeat page with option to save data
+                    save_button = True      # add save button
         else:
             next_page_name = set_previous()             # Set on the previous page or the first page
 
@@ -397,6 +409,7 @@ class Example:
 
         al_forms[next_page_name]["page_name"] = next_page_name      # store the page key to analyze the data
 
+        al_forms[next_page_name]["save_button"] = save_button
         if selection_list:
             # add selection
             al_forms[next_page_name]["selection_header"] = ("Page", "Field", "Key", "Value")

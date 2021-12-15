@@ -119,8 +119,13 @@
                 <text>{{field.label}}:&nbsp;</text>
              {% endif %}
 
+            {% if field.required == True %}
+                <select id="{{field.key}}" name="{{field.key}}" title="{{field.help}}" required>
+            {%  else %}
+                <select id="{{field.key}}" name="{{field.key}}" title="{{field.help}}">
+            {%  endif %}
 
-            <select id="{{field.key}}" name="{{field.key}}" title="{{field.help}}">
+
 
             {% for next_option in field.options %}
 
@@ -159,11 +164,17 @@
   &nbsp; &nbsp;
   <input type ="submit" name = "previous_web_page" value="Previous Page" title="Go to the previous selection page"/>
   &nbsp; &nbsp;
+  <input type ="submit" name = "first_web_page" value="First Page" title="Go to the previous selection page"/>
+  &nbsp; &nbsp;
   <input type ="submit" name = "show_selections" value="Show Selections" title="Show all config selections"/>
+
+  {% if save_button == True %}
+        &nbsp; &nbsp;
+        <input type ="submit" name = "save_config" value="Save" title="Save to config file"/>
+  {%  endif %}
 
   </form>
 
   </body>
-
 
 </html>
