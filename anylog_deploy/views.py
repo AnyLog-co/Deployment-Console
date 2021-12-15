@@ -114,7 +114,7 @@ al_forms = {
                 "section": "authentication",
                 "key": "password",
                 "label": "Authentication Password",
-                "type": "input_text",
+                "type": "input_password",
                 "print_after": ["&nbsp;","&nbsp;"],
                 "help": "Authentication password correlated to user",
                 "protected": True,
@@ -444,16 +444,20 @@ class Example:
 
         if request.method == 'POST':
             current_page = request.POST.get('page_name')
+
             if request.POST.get('show_selections'):
                 # Keep the same page + show selections
                 update_config(request)
                 next_page_name = current_page
                 selection_list = set_selection()         # This list is used to print the selection on the web page
+
             elif request.POST.get('previous_web_page'):
                 next_page_name = set_previous()  # Set on the previous page or the first page
+
             elif request.POST.get('first_web_page'):
                 next_page_name = FIRST_PAGE_KEY  # Set on the previous page or the first page
                 PAGE_COUNTER = 0
+
             elif request.POST.get('save_config'):
                 update_config(request)  # go to the last page
                 write_config_file()
@@ -564,13 +568,18 @@ def set_selection():
             else:
                 page_name = ""
 
-            if "key" in field and "value" in field:
+            if "key" in field and "value" in field and "type" in field:
                 if "label" in field:
                     label = field["label"]
                 else:
                     label = ""
 
-                selections_list.append((page_name, label, field["key"], field["value"]))
+                if field["type"] == "input_password":
+                    value = '*' * len(field["value"])       # not showing value on screen
+                else:
+                    value = field["value"]
+
+                selections_list.append((page_name, label, field["key"], value))
 
     return selections_list
 

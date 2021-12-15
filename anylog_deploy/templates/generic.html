@@ -100,6 +100,17 @@
                 <input type="text" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}">
             {%  endif %}
 
+        {% elif field.type == "input_password" %}
+
+            {% if field.label %}
+                <label for="{{field.name}}">{{field.label}}:&nbsp;</label>
+             {% endif %}
+            {% if field.required == True %}
+                <input type="password" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}" required>
+            {%  else %}
+                <input type="password" id="{{field.key}}" name="{{field.key}}" size="{{field.size}}" value="{{field.value}}" title="{{field.help}}">
+            {%  endif %}
+
 
         {% elif field.type == "input_number" %}
 
