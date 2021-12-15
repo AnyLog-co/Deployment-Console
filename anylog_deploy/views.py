@@ -31,6 +31,8 @@ al_forms = {
         "next" : "general_info",
         "fields" : [
             {
+                "section": "general",
+                "required": True,
                 "key" : "build",
                 "label" : "Build",
                 "type" : "selection",
@@ -38,34 +40,40 @@ al_forms = {
                 "print_after" : ["&nbsp;","&nbsp;"],
                 "help" : "AnyLog version to download from Docker Hub",
                 "config" : True,
-                "required" : True
             },
             {
+                "section": "general",
+                "required": True,
                 "key": "node_type",
                 "label": "Node Type",
                 "type": "selection",
                 "options": ["", "none", "rest", "master", "operator", "publisher",
                             "query", "single-node", "single-node-publisher"],
+                "next": ["", "operator_params", "operator_params", "operator_params", "operator_params", "", "", "", ""],
+
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Type of node AnyLog should run",
                 "config": True,
-                "required" : True
             }
         ]
     },
     "general_info": { # General information & authentication params
         "name": "General Information",
-        "next": "network_configs",
+        "next": "base_configs.node_type",
         "fields" : [
             {
+                "section": "general",
+                "required": True,
                 "key" : "node_name",
                 "label" : "Node Name",
                 "type" : "input_text",
                 "print_after": ["&nbsp;","&nbsp;"],
                 "help" : "Name correlated with the node",
-                "config" : True,                   
+                "config" : True,
             },
             {
+                "section": "general",
+                "required": True,
                 "key": "company_name",
                 "label": "Company Name",
                 "type": "input_text",
@@ -74,6 +82,7 @@ al_forms = {
                 "config": True
             },
             { # Optional
+                "section": "general",
                 "key": "location",
                 "label": "Location",
                 "type": "input_text",
@@ -82,6 +91,8 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "authentication",
+                "required": True,
                 "key": "authentication",
                 "label": "Authentication",
                 "type": "selection",
@@ -91,6 +102,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "authentication",
                 "key": "username",
                 "label": "Authentication User",
                 "type": "input_text",
@@ -99,14 +111,17 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "authentication",
                 "key": "password",
                 "label": "Authentication Password",
                 "type": "input_text",
                 "print_after": ["&nbsp;","&nbsp;"],
                 "help": "Authentication password correlated to user",
+                "protected": True,
                 "config": True
             },
             {
+                "section": "authentication",
                 "key": "auth_type",
                 "label": "Authentication Type",
                 "type": "selection",
@@ -122,32 +137,41 @@ al_forms = {
         "next": "database_configs",
         "fields": [
             {
+                "section": "networking",
+                "required": True,
                 "key": "anylog_tcp_port",
                 "label": "TCP Port",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
+                "min": 2048, "max": 65535,
                 "help": "TCP port for node used to communicate with other nodes in the network",
-                "config": True,  
+                "config": True,
             },
             {
+                "section": "networking",
+                "required": True,
                 "key": "anylog_rest_port",
                 "label": "REST Port",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
+                "min": 2048, "max": 65535,
                 "help": "REST port to communicate against with the AnyLog instance",
-                "config": True,  
+                "config": True,
             },
             {
+                "section": "networking",
+                "required": True,
                 "key": "master_node",
                 "label": "Master Node",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "TCP connection information for master node",
-                "config": True,  
+                "config": True,
             },
 
             # Optional params
             {
+                "section": "networking",
                 "key": "anylog_broker_port",
                 "label": "Local Broker Port",
                 "type":"input_text",
@@ -156,6 +180,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "networking",
                 "key": "external_ip",
                 "label": "External IP",
                 "type": "input_text",
@@ -164,6 +189,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "networking",
                 "key": "local_ip",
                 "label": "Local IP",
                 "type": "input_text",
@@ -178,15 +204,19 @@ al_forms = {
         "next": "operator_params",
         "fields": [
             {
+                "section": "database",
+                "required": True,
                 "key": "db_type",
                 "label": "Database Type",
                 "type": "selection",
                 "options": ["", "sqlite", "psql"],
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "Type of database to be used by the AnyLog node",
-                "config": True,  
+                "config": True,
             },
             {
+                "section": "database",
+                "required": True,
                 "key": "db_user",
                 "label": "Database Credentials",
                 "type": "input_text",
@@ -195,6 +225,8 @@ al_forms = {
                 "config": True,
             },
             {
+                "section": "database",
+                "required": True,
                 "key": "db_port",
                 "label": "Database Port",
                 "type": "input_text",
@@ -207,8 +239,11 @@ al_forms = {
     "operator_params": { # operator params - default dbms, cluster, partitioning
         "name": "Operator Params",
         "next": "mqtt_params",
+        "node_type": ["rest", "operator", "single-node"],
         "fields": [
             {
+                "section": "database",
+                "required": True,
                 "key": "default_dbms",
                 "label": "Default Database",
                 "type": "input_text",
@@ -218,6 +253,8 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "cluster",
+                "required": True,
                 "key": "enable_cluster",
                 "label": "Enable Cluster",
                 "type": "selection",
@@ -227,6 +264,8 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "cluster",
+                "required": False,
                 "key": "cluster_name",
                 "label": "Cluster Name",
                 "type": "input_text",
@@ -235,6 +274,8 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "partition",
+                "required": True,
                 "key": "enable_partition",
                 "label": "Enable Partitioning",
                 "type": "selection",
@@ -244,6 +285,8 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "partition",
+                "required": False,
                 "key": "partition_column",
                 "label": "Partition Column",
                 "type": "input_text",
@@ -252,6 +295,8 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "partition",
+                "required": False,
                 "key": "partition_interval",
                 "label": "Partition Interval",
                 "type": "input_text",
@@ -264,8 +309,11 @@ al_forms = {
     "mqtt_params": { # MQTT params - should only be available for nodes of type publisher || operator
         "name": "MQTT Parameters",
         "next": "",
+        "node_type": ["rest", "publisher", "operator", "single-node", "single-node-publisher"],
         "fields": [
             {
+                "section": "mqtt",
+                "required": True,
                 "key": "mqtt_enable",
                 "label": "Enable MQTT",
                 "type": "selection",
@@ -275,6 +323,8 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
+                "required": False, # required if mqtt_enable == "true"
                 "key": "broker",
                 "label": "Broker",
                 "type": "input_text",
@@ -283,6 +333,8 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
+                "required": False,  # required if mqtt_enable == "true"
                 "key": "mqtt_port",
                 "label": "MQTT Port",
                 "type": "input_text",
@@ -291,6 +343,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
                 "key": "mqtt_user",
                 "label": "MQTT Username",
                 "type": "input_text",
@@ -299,14 +352,28 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
                 "key": "mqtt_password",
                 "label": "MQTT Password",
                 "type": "input_text",
                 "print_after": ["&nbsp;", "&nbsp;"],
                 "help": "MQTT password",
+                "config": True,
+                "protected": True
+            },
+            {
+                "section": "mqtt",
+                "key": "mqtt_log",
+                "label": "MQTT Logging",
+                "type": "selection",
+                "options": ["false", "true"],
+                "print_after": ["&nbsp;", "&nbsp;"],
+                "help": "Whether to enable MQTT logging or not",
                 "config": True
             },
             {
+                "section": "mqtt",
+                "required": False, # required if mqtt_enable == "true"
                 "key": "mqtt_topic_name",
                 "label": "Topic Name",
                 "type": "input_text",
@@ -315,6 +382,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
                 "key": "mqtt_topic_dbms",
                 "label": "MQTT Topic Database",
                 "type": "input_text",
@@ -323,6 +391,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
                 "key": "mqtt_topic_table",
                 "label": "MQTT Topic Name",
                 "type": "input_text",
@@ -331,6 +400,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
                 "key": "mqtt_column_timestamp",
                 "label": "MQTT Timestamp Column",
                 "type": "input_text",
@@ -339,6 +409,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
                 "key": "mqtt_column_value_type",
                 "label": "MQTT Value Column Type",
                 "type": "selection",
@@ -348,6 +419,7 @@ al_forms = {
                 "config": True
             },
             {
+                "section": "mqtt",
                 "key": "mqtt_column_value",
                 "label": "MQTT Value Column Value",
                 "type": "input_text",
@@ -428,10 +500,25 @@ def update_config(request):
     '''
     Use the keys from al_forms to retrieve the values set on th eforms
     '''
+    global al_forms
 
     post_data = request.POST
     page_name = post_data.get('page_name')
     next_page = post_data.get('next_page')
+    if '.' in next_page:
+        # get next page using an option list - example: "base_configs.node_type"
+        next_page_info = next_page.split('.')
+        page_key = next_page_info[0]        # The page with the options
+        column_name = next_page_info[1]     # The column with the options
+        form_defs = al_forms[page_key]
+        fields = form_defs["fields"]
+        for field in fields:
+            if field["key"] == column_name:
+                value = field["value"]
+                index = field["options"].index(value)
+                if field["next"][index]:
+                    next_page = field["next"][index]    # Get the page name as a f(option selected)
+                break;
 
     # get field values
     form_defs = al_forms[page_name]
