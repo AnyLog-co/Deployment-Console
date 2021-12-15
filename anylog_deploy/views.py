@@ -365,7 +365,7 @@ al_forms = {
                 "section": "mqtt",
                 "key": "mqtt_password",
                 "label": "MQTT Password",
-                "type": "input_text",
+                "type": "input_password",
                 "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT password",
                 "config": True,
