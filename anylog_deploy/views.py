@@ -37,7 +37,7 @@ al_forms = {
                 "label" : "Build",
                 "type" : "selection",
                 "options" : ["", "predevelop"],
-                "print_after" : ["&nbsp;","&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help" : "AnyLog version to download from Docker Hub",
                 "config" : True,
             },
@@ -51,7 +51,7 @@ al_forms = {
                             "query", "single-node", "single-node-publisher"],
                 "next": ["", "network_configs", "operator_params", "operator_params", "operator_params", "", "", "", ""],
 
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Type of node AnyLog should run",
                 "config": True,
             }
@@ -67,7 +67,7 @@ al_forms = {
                 "key" : "node_name",
                 "label" : "Node Name",
                 "type" : "input_text",
-                "print_after": ["&nbsp;","&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help" : "Name correlated with the node",
                 "config" : True,
             },
@@ -77,7 +77,7 @@ al_forms = {
                 "key": "company_name",
                 "label": "Company Name",
                 "type": "input_text",
-                "print_after": ["&nbsp;","&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Company correlated with policies declared via this node",
                 "config": True
             },
@@ -86,7 +86,7 @@ al_forms = {
                 "key": "location",
                 "label": "Location",
                 "type": "input_text",
-                "print_after": ["&nbsp;","&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Machine location - coordinates location is accessible via Grafana Map visualization",
                 "config": True
             },
@@ -95,9 +95,8 @@ al_forms = {
                 "required": True,
                 "key": "authentication",
                 "label": "Authentication",
-                "type": "selection",
-                "options": ["false", "true"],
-                "print_after": ["&nbsp;","&nbsp;"],
+                "type": "checkbox",
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Whether or not to enable authentication",
                 "config": True
             },
@@ -106,7 +105,7 @@ al_forms = {
                 "key": "username",
                 "label": "Authentication User",
                 "type": "input_text",
-                "print_after": ["&nbsp;","&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Authentication username",
                 "config": True
             },
@@ -115,7 +114,7 @@ al_forms = {
                 "key": "password",
                 "label": "Authentication Password",
                 "type": "input_password",
-                "print_after": ["&nbsp;","&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Authentication password correlated to user",
                 "protected": True,
                 "config": True
@@ -126,7 +125,7 @@ al_forms = {
                 "label": "Authentication Type",
                 "type": "selection",
                 "options": ["admin", "user"],
-                "print_after": ["&nbsp;","&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Authentication user type",
                 "config": True
             }
@@ -141,9 +140,9 @@ al_forms = {
                 "required": True,
                 "key": "anylog_tcp_port",
                 "label": "TCP Port",
-                "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "type": "input_number",
                 "min": 2048, "max": 65535,
+                "print_after" : ["<br/>","<br/>"],
                 "help": "TCP port for node used to communicate with other nodes in the network",
                 "config": True,
             },
@@ -152,9 +151,9 @@ al_forms = {
                 "required": True,
                 "key": "anylog_rest_port",
                 "label": "REST Port",
-                "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "type": "input_number",
                 "min": 2048, "max": 65535,
+                "print_after" : ["<br/>","<br/>"],
                 "help": "REST port to communicate against with the AnyLog instance",
                 "config": True,
             },
@@ -164,7 +163,7 @@ al_forms = {
                 "key": "master_node",
                 "label": "Master Node",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "TCP connection information for master node",
                 "config": True,
             },
@@ -174,8 +173,9 @@ al_forms = {
                 "section": "networking",
                 "key": "anylog_broker_port",
                 "label": "Local Broker Port",
-                "type":"input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "type":"input_number",
+                "min": 2048, "max": 65535,
+                "print_after" : ["<br/>","<br/>"],
                 "help": "AnyLog broker port",
                 "config": True
             },
@@ -184,7 +184,7 @@ al_forms = {
                 "key": "external_ip",
                 "label": "External IP",
                 "type": "input_ip",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "IP address to be used as the external ip",
                 "config": True
             },
@@ -193,7 +193,7 @@ al_forms = {
                 "key": "local_ip",
                 "label": "Local IP",
                 "type": "input_ip",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "IP address to be used as the local ip",
                 "config": True
             }
@@ -210,7 +210,7 @@ al_forms = {
                 "label": "Database Type",
                 "type": "selection",
                 "options": ["", "sqlite", "psql"],
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Type of database to be used by the AnyLog node",
                 "config": True,
             },
@@ -220,7 +220,7 @@ al_forms = {
                 "key": "db_user",
                 "label": "Database Credentials",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Database credentials (ex. ${USER}@${IP}:${PASSWORD})",
                 "config": True,
             },
@@ -229,8 +229,9 @@ al_forms = {
                 "required": True,
                 "key": "db_port",
                 "label": "Database Port",
-                "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "type": "input_number",
+                "min": 2048, "max": 65535,
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Database access port",
                 "config": True,
             }
@@ -248,18 +249,17 @@ al_forms = {
                 "label": "Default Database",
                 "type": "input_text",
                 "options": ["true", "false"],
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Database correlated to the operator",
                 "config": True
             },
             {
                 "section": "cluster",
-                "required": True,
+                "required": False,
                 "key": "enable_cluster",
                 "label": "Enable Cluster",
-                "type": "selection",
-                "options": ["true", "false"],
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "type": "checkbox",
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Whether or not the operator is correlated to a cluster",
                 "config": True
             },
@@ -269,18 +269,17 @@ al_forms = {
                 "key": "cluster_name",
                 "label": "Cluster Name",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Cluster name",
                 "config": True
             },
             {
                 "section": "partition",
-                "required": True,
+                "required": False,
                 "key": "enable_partition",
                 "label": "Enable Partitioning",
-                "type": "selection",
-                "options": ["false", "true"],
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "type": "checkbox",
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Whether or not to enable partitioning",
                 "config": True
             },
@@ -316,9 +315,8 @@ al_forms = {
                 "required": True,
                 "key": "mqtt_enable",
                 "label": "Enable MQTT",
-                "type": "selection",
-                "options": ["false", "true"],
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "type": "checkbox",
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Whether to enable MQTT",
                 "config": True
             },
@@ -328,7 +326,7 @@ al_forms = {
                 "key": "broker",
                 "label": "Broker",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Whether to enable MQTT",
                 "config": True
             },
@@ -338,7 +336,7 @@ al_forms = {
                 "key": "mqtt_port",
                 "label": "MQTT Port",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT port",
                 "config": True
             },
@@ -347,7 +345,7 @@ al_forms = {
                 "key": "mqtt_user",
                 "label": "MQTT Username",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT username",
                 "config": True
             },
@@ -356,7 +354,7 @@ al_forms = {
                 "key": "mqtt_password",
                 "label": "MQTT Password",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT password",
                 "config": True,
                 "protected": True
@@ -367,7 +365,7 @@ al_forms = {
                 "label": "MQTT Logging",
                 "type": "selection",
                 "options": ["false", "true"],
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "Whether to enable MQTT logging or not",
                 "config": True
             },
@@ -377,7 +375,7 @@ al_forms = {
                 "key": "mqtt_topic_name",
                 "label": "Topic Name",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT topic name",
                 "config": True
             },
@@ -386,7 +384,7 @@ al_forms = {
                 "key": "mqtt_topic_dbms",
                 "label": "MQTT Topic Database",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT topic database",
                 "config": True
             },
@@ -395,7 +393,7 @@ al_forms = {
                 "key": "mqtt_topic_table",
                 "label": "MQTT Topic Name",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT topic table",
                 "config": True
             },
@@ -404,7 +402,7 @@ al_forms = {
                 "key": "mqtt_column_timestamp",
                 "label": "MQTT Timestamp Column",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT timestamp column name",
                 "config": True
             },
@@ -414,7 +412,7 @@ al_forms = {
                 "label": "MQTT Value Column Type",
                 "type": "selection",
                 "options": ["str", "int", "float", "bool", "timestamp"],
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT value column type",
                 "config": True
             },
@@ -423,7 +421,7 @@ al_forms = {
                 "key": "mqtt_column_value",
                 "label": "MQTT Value Column Value",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT value column name",
                 "config": True
             }
@@ -619,10 +617,10 @@ def write_config_file():
         fields = form_defs["fields"]
 
         for field in fields:
-
             if "key" in field and "value" in field:
                 if not "config" in field or field["config"] == False:       # field["config"] set to false makes the value removed from the output file
                     config_file.append("\n\r" + field["key"] + '=' + field["value"])
+
 
 
     # write to file
