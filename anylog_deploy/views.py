@@ -607,9 +607,7 @@ def write_config_file():
     global al_forms
     global PAGE_COUNTER
     global PAGES_LIST
-
-    config_file = ""
-
+    config_params = {}
     for counter in range(PAGE_COUNTER):
 
         page_name = PAGES_LIST[counter]
@@ -618,8 +616,14 @@ def write_config_file():
 
         for field in fields:
             if "key" in field and "value" in field:
-                if not "config" in field or field["config"] == False:       # field["config"] set to false makes the value removed from the output file
-                    config_file.append("\n\r" + field["key"] + '=' + field["value"])
+                if not "config" in field or field["config"] is True:       # field["config"] set to false makes the value removed from the output file
+                    if field['section'] not in config_params:
+                        config_params[field['section']] = {}
+                    config_params[field['section']][field["key"]] = field['value']
+
+
+
+
 
 
 
