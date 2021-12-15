@@ -65,7 +65,7 @@ al_forms = {
     },
     "general_info": { # General information & authentication params
         "name": "General Information",
-        "next": "base_configs.node_type",
+        "next": "base_configs.node_type.next",      # 3 sections: page + field + key in field showing destination pages
         "fields" : [
             {
                 "section": "general",
@@ -515,18 +515,25 @@ def update_config(request):
     next_page = post_data.get('next_page')
     if '.' in next_page:
         # get next page using an option list - example: "base_configs.node_type"
-        next_page_info = next_page.split('.')
-        page_key = next_page_info[0]        # The page with the options
-        column_name = next_page_info[1]     # The column with the options
-        form_defs = al_forms[page_key]
-        fields = form_defs["fields"]
-        for field in fields:
-            if field["key"] == column_name:
-                value = field["value"]
-                index = field["options"].index(value)
-                if "next" in field and len( field["next"]) > index:
-                    next_page = field["next"][index]    # Get the page name as a f(option selected)
-                break;
+        next_page_info = next_page.split('.')   # Need to be 3 sections:
+                                                # page + field + key in field showing destination pages
+        if len(next_page_info) == 3:
+            page_key = next_page_info[0]        # The page with the options
+            column_name = next_page_info[1]     # The column with the options
+            column_key = next_page_info[2]      # The name of the key with the options
+
+            form_defs = al_forms[page_key]
+            fields = form_defs["fields"]
+
+            # fnd the next page to use
+            for field in fields:
+                if column_key in field:
+                    if field["key"] == column_name:
+                        value = field["value"]
+                        index = field["options"].index(value)
+                        if "next" in field and len( field["next"]) > index:
+                            next_page = field["next"][index]    # Get the page name as a f(option selected)
+                        break
 
     # get field values
     form_defs = al_forms[page_name]
