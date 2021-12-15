@@ -13,7 +13,7 @@ Form options:
     name - the name of the form which appears on the title
     next - the key of the page, None - ends the page inputs and writes the file
     fields - a list of input fields for every form
-        type -  "selection", "input_text", "input_number", "button_submit", "checkbox"
+        type -  "selection", "input_text", "input_ip", "input_password", "input_number", "button_submit", "checkbox"
         label - text before the input field
         print_before - list of text strings printed before the label and the input including "&nbsp;" and "<br/>"
         print_after - list of text strings printed before the label and the input including "&nbsp;" and "<br/>"
