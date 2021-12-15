@@ -53,10 +53,16 @@ al_forms = {
                 "key": "node_type",
                 "label": "Node Type",
                 "type": "selection",
-                "options": ["generic", "rest", "master", "operator", "publisher",
-                            "query", "single-node", "single-node-publisher"],
-                "next": [None, "network_configs", "network_configs", "network_configs", "network_configs",
+                "options": ["generic", "rest", "master", "operator", "publisher", "query", "single-node",
+                            "single-node-publisher"],
+                "next1": [None, "network_configs", "network_configs", "network_configs", "network_configs",
                          "network_configs", "network_configs", "network_configs"],
+                "next2": [None, "database_configs", "database_configs", "database_configs", "database_configs",
+                         "database_configs", "database_configs", "database_configs"],
+                "next3": [None, "operator_params", None, "operator_params", "mqtt_params", None, "operator_params",
+                          "mqtt_params"],
+                "next4": [None, "mqtt_params", None, "mqtt_params", None, None, "mqtt_params", None],
+                "next5": [None, None, None, None, None, None, None, None],
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Type of node AnyLog should run",
                 "config": True,
@@ -65,7 +71,7 @@ al_forms = {
     },
     "general_info": { # General information & authentication params
         "name": "General Information",
-        "next": "base_configs.node_type.next",      # 3 sections: page + field + key in field showing destination pages
+        "next": "base_configs.node_type.next1",      # 3 sections: page + field + key in field showing destination pages
         "fields" : [
             {
                 "section": "general",
@@ -139,7 +145,7 @@ al_forms = {
     },
     "network_configs": { # network configurations
         "name": "Network Configurations",
-        "next": "database_configs",
+        "next": "base_configs.node_type.next2",
         "fields": [
             {
                 "section": "networking",
@@ -207,7 +213,7 @@ al_forms = {
     },
     "database_configs": { # database params
         "name": "Database Configurations",
-        "next": "operator_params",
+        "next": "base_configs.node_type.next3",
         "fields": [
             {
                 "section": "database",
@@ -245,7 +251,7 @@ al_forms = {
     },
     "operator_params": { # operator params - default dbms, cluster, partitioning
         "name": "Operator Params",
-        "next": "mqtt_params",
+        "next": "base_configs.node_type.next4",
         "node_type": ["rest", "operator", "single-node"],
         "fields": [
             {
@@ -313,7 +319,7 @@ al_forms = {
     },
     "mqtt_params": { # MQTT params - should only be available for nodes of type publisher || operator
         "name": "MQTT Parameters",
-        "next": "",
+        "next": "base_configs.node_type.next5",
         "node_type": ["rest", "publisher", "operator", "single-node", "single-node-publisher"],
         "fields": [
             {
