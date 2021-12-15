@@ -55,7 +55,7 @@ al_forms = {
                 "type": "selection",
                 "options": ["", "none", "rest", "master", "operator", "publisher",
                             "query", "single-node", "single-node-publisher"],
-                "next": ["", "network_configs", "operator_params", "operator_params", "operator_params", "", "", "", ""],
+                "next": ["", None, "operator_params", "operator_params", "operator_params", "", "", "", ""],
 
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Type of node AnyLog should run",
