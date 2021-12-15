@@ -537,8 +537,8 @@ def update_config(request):
                     if field["key"] == column_name:
                         value = field["value"]
                         index = field["options"].index(value)
-                        if "next" in field and len( field["next"]) > index:
-                            next_page = field["next"][index]    # Get the page name as a f(option selected)
+                        if column_key in field and len( field[column_key]) > index:
+                            next_page = field[column_key][index]    # Get the page name as a f(option selected)
                         break
 
     # get field values
