@@ -1,8 +1,8 @@
 import os
+import django.core.handlers.wsgi
+import anylog_api.io_config as io_config
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
-import anylog_api.io_config as io_config
 
 FIRST_PAGE_KEY = "base_configs"      # First page ID
 
@@ -32,7 +32,8 @@ Form options:
 '''
 
 al_forms = {
-    "base_configs" : { # Basic node type & build configuration
+    # Basic node type & build configuration
+    "base_configs" : {
         "name" : "Base Configs",
         "next" : "general_info",
         "fields" : [
@@ -55,21 +56,22 @@ al_forms = {
                 "type": "selection",
                 "options": ["generic", "rest", "master", "operator", "publisher", "query", "single-node",
                             "single-node-publisher"],
-                "next1": [None, "network_configs", "network_configs", "network_configs", "network_configs",
+                "next1": ["database_configs", "network_configs", "network_configs", "network_configs", "network_configs",
                          "network_configs", "network_configs", "network_configs"],
-                "next2": [None, "database_configs", "database_configs", "database_configs", "database_configs",
+                "next2": ["deployment_configs", "database_configs", "database_configs", "database_configs", "database_configs",
                          "database_configs", "database_configs", "database_configs"],
-                "next3": [None, "operator_params", None, "operator_params", "mqtt_params", None, "operator_params",
-                          "mqtt_params"],
-                "next4": [None, "mqtt_params", None, "mqtt_params", None, None, "mqtt_params", None],
-                "next5": [None, None, None, None, None, None, None, None],
+                "next3": ["deployment_configs", "operator_params", "deployment_configs", "operator_params", "mqtt_params",
+                          "deployment_configs", "operator_params", "mqtt_params"],
+                "next4": ["deployment_configs", "mqtt_params", "deployment_configs", "mqtt_params", "deployment_configs",
+                          "deployment_configs", "mqtt_params", "deployment_configs"],
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Type of node AnyLog should run",
                 "config": True,
             }
         ]
     },
-    "general_info": { # General information & authentication params
+    # General information & authentication params
+    "general_info": {
         "name": "General Information",
         "next": "base_configs.node_type.next1",      # 3 sections: page + field + key in field showing destination pages
         "fields" : [
@@ -143,7 +145,8 @@ al_forms = {
             }
         ]
     },
-    "network_configs": { # network configurations
+    # network configurations
+    "network_configs": {
         "name": "Network Configurations",
         "next": "base_configs.node_type.next2",
         "fields": [
@@ -183,16 +186,6 @@ al_forms = {
             # Optional params
             {
                 "section": "networking",
-                "key": "anylog_broker_port",
-                "label": "Local Broker Port",
-                "type":"input_number",
-                "min": 2048, "max": 65535,
-                "print_after" : ["<br/>","<br/>"],
-                "help": "AnyLog broker port",
-                "config": True
-            },
-            {
-                "section": "networking",
                 "key": "external_ip",
                 "label": "External IP",
                 "type": "input_ip",
@@ -208,10 +201,21 @@ al_forms = {
                 "print_after" : ["<br/>","<br/>"],
                 "help": "IP address to be used as the local ip",
                 "config": True
+            },
+            {
+                "section": "networking",
+                "key": "anylog_broker_port",
+                "label": "Local Broker Port",
+                "type":"input_number",
+                "min": 2048, "max": 65535,
+                "print_after" : ["<br/>","<br/>"],
+                "help": "AnyLog broker port",
+                "config": True
             }
        ]
     },
-    "database_configs": { # database params
+    # database params
+    "database_configs": {
         "name": "Database Configurations",
         "next": "base_configs.node_type.next3",
         "fields": [
@@ -249,7 +253,8 @@ al_forms = {
             }
         ]
     },
-    "operator_params": { # operator params - default dbms, cluster, partitioning
+    # operator params - default dbms, cluster, partitioning
+    "operator_params": {
         "name": "Operator Params",
         "next": "base_configs.node_type.next4",
         "node_type": ["rest", "operator", "single-node"],
@@ -317,9 +322,10 @@ al_forms = {
             }
         ]
     },
-    "mqtt_params": { # MQTT params - should only be available for nodes of type publisher || operator
+    # MQTT related params
+    "mqtt_params": {
         "name": "MQTT Parameters",
-        "next": "base_configs.node_type.next5",
+        "next": "deployment_configs",
         "node_type": ["rest", "publisher", "operator", "single-node", "single-node-publisher"],
         "fields": [
             {
@@ -374,9 +380,8 @@ al_forms = {
             {
                 "section": "mqtt",
                 "key": "mqtt_log",
-                "label": "MQTT Logging",
-                "type": "selection",
-                "options": ["false", "true"],
+                "label": "Enable MQTT Logging",
+                "type": "checkbox",
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Whether to enable MQTT logging or not",
                 "config": True
@@ -438,12 +443,53 @@ al_forms = {
                 "config": True
             }
         ]
+    },
+    # whether to deploy Postgres and/or Grafana docker container(s)
+    "deployment_configs": {
+        "name": "Deployment Configs",
+        "next": None,
+        "node_type": ["rest", "publisher", "operator", "single-node", "single-node-publisher"],
+        "fields": [
+            {
+                "section": "other",
+                "key": "psql",
+                "label": "Postgres",
+                "type": "checkbox",
+                "print_after" : ["<br/>","<br/>"],
+                "help": "Whether or not to deploy Postgres container",
+                "config": True
+            },
+            {
+                "section": "other",
+                "key": "grafana",
+                "label": "Grafana",
+                "type": "checkbox",
+                "print_after" : ["<br/>","<br/>"],
+                "help": "Whether or not to deploy Grafana container",
+                "config": True
+            }
+    ]
     }
 }
 
 
-class Example:
-    def front_page(self, request)->HttpResponse:
+class DeploymentConsole:
+    def front_page(self, request:django.core.handlers.wsgi.WSGIRequest)->HttpResponse:
+        """
+        Call to the deployment website (default: 127.0.0.1:8000)
+        :args:
+            request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
+        :global params:
+            FIRST_PAGE_KEY - initial page
+            PAGE_COUNTER:int - number value of the page user is on
+            PAGES_LIST:list - list of pages
+            al_forms:dict - with configuration content by user
+        :params:
+            selection_list:list - print selections
+            save_button:bool - save content
+        :redirect:
+            update generic.html based on the form information
+        """
         global FIRST_PAGE_KEY
         global PAGE_COUNTER
         global PAGES_LIST
@@ -507,13 +553,22 @@ class Example:
 
         return render(request, 'generic.html', al_forms[next_page_name])
 
-# ------------------------------------------------------------------------------------------------------
-# Update the form info with the user selections on the form page
-# ------------------------------------------------------------------------------------------------------
-def update_config(request):
-    '''
-    Use the keys from al_forms to retrieve the values set on th eforms
-    '''
+
+def update_config(request:django.core.handlers.wsgi.WSGIRequest):
+    """
+    Update the form info with the user selections on the form page - Use the keys from al_forms to retrieve the values
+    set on the forms
+    :args:
+        request:django.core.handlers.wsgi.WSGIRequest - type of request against the form
+    :global params:
+        al_forms:dict - with configuration content by user
+    :params:
+        post_data:request.POST
+        page_name:str - page being generated
+        next_page:str - following page
+        form_defs:dict - content inputted by user
+        fields:list - form questions for section
+    """
     global al_forms
 
     post_data = request.POST
@@ -559,11 +614,20 @@ def update_config(request):
         field["value"] = value
 
     return next_page
-# ------------------------------------------------------------------------------------------------------
-# Update a list of selections
-# ------------------------------------------------------------------------------------------------------
-def set_selection():
 
+
+def set_selection():
+    """
+    Based on user input, updated selections
+    :global params:
+        FIRST_PAGE_KEY - initial page
+        PAGE_COUNTER:int - number value of the page user is on
+        PAGES_LIST:list - list of pages
+        al_forms:dict - with configuration content by user
+    :params:
+        selections_list:list - content
+        form_defs:dict - content inputted by user
+    """
     global FIRST_PAGE_KEY
     global PAGE_COUNTER
     global PAGES_LIST
@@ -600,10 +664,19 @@ def set_selection():
 
     return selections_list
 
-# ------------------------------------------------------------------------------------------------------
-# Return and set status on the previous page or on the first page if no previous
-# ------------------------------------------------------------------------------------------------------
-def set_previous():
+
+def set_previous()->str:
+    """
+    Return and set status on the previous page or on the first page if no previous
+    :global params;
+        FIRST_PAGE_KEY - initial page
+        PAGE_COUNTER:int - number value of the page user is on
+        PAGES_LIST:list - list of pages
+    :params:
+        previous_page_name:str - previous page name
+    :return:
+        previous_page_name
+    """
     global FIRST_PAGE_KEY
     global PAGE_COUNTER
     global PAGES_LIST
@@ -618,16 +691,25 @@ def set_previous():
     return previous_page_name
 
 
-# ------------------------------------------------------------------------------------------------------
-# Create the config file + Output the info to a config file
-# ------------------------------------------------------------------------------------------------------
 def write_config_file():
+    """
+    Create the config file + Output the info to a config file
+    :global params:
+        FIRST_PAGE_KEY - initial page
+        PAGE_COUNTER:int - number value of the page user is on
+        PAGES_LIST:list - list of pages
+        al_forms:dict - with configuration content by user
+    :params:
+        config_params:dict - params to write to file
+        config_file:str - full file path
+    """
     global al_forms
     global PAGE_COUNTER
     global PAGES_LIST
-    config_params = {}
-    for counter in range(PAGE_COUNTER):
 
+    config_params = {}
+
+    for counter in range(PAGE_COUNTER):
         page_name = PAGES_LIST[counter]
         form_defs = al_forms[page_name]
         fields = form_defs["fields"]
@@ -645,5 +727,6 @@ def write_config_file():
                         config_params[field['section']][field["key"]] = field['value']
 
         if counter == PAGE_COUNTER - 1:
+            # write to config file
             config_file = os.path.join(CONFIG_DIR_PATH, '%s.ini' % config_params['general']['node_name'])
-            errors = io_config.write_configs(config_file=config_file, config_data=config_params)
+            io_config.write_configs(config_file=config_file, config_data=config_params)
