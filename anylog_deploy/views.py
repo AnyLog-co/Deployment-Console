@@ -66,8 +66,6 @@ al_forms = {
                          "database_configs", "database_configs", "database_configs"],
                 "next3": [None, "operator_params", None, "operator_params", "mqtt_params",
                           None, "operator_params", "mqtt_params"],
-                "next4": [None, "mqtt_params", None, "mqtt_params", None,
-                          None, "mqtt_params", None],
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Type of node AnyLog should run",
                 "config": True,
@@ -95,7 +93,7 @@ al_forms = {
                 "required": True,
                 "key": "company_name",
                 "label": "Company Name",
-                "value": "Your Company Name Here",
+                "value": "Your Company Name",
                 "type": "input_text",
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Company correlated with policies declared via this node",
@@ -296,7 +294,7 @@ al_forms = {
     # operator params - default dbms, cluster, partitioning
     "operator_params": {
         "name": "Operator Params",
-        "next": "base_configs.node_type.next4",
+        "next": "data_monitor",
         "node_type": ["rest", "operator", "single-node"],
         "fields": [
             {
@@ -368,6 +366,87 @@ al_forms = {
                 "options": ["hour", "day", "month", "year"],
                 "print_after": ["<br/>", "<br/>"],
                 "help": "Partition interval",
+                "config": True
+            },
+            {
+                "section": "partition",
+                "required": False,
+                "key": "drop_partition",
+                "label": "Enable Drop Partition",
+                "type": "checkbox",
+                "print_after": ["<br/>", "<br/>"],
+                "help": "Whether or not to drop partitions",
+                "config": True
+            },
+            {
+                "section": "partition",
+                "required": "False",
+                "key": "partition_keep",
+                "label": "Days",
+                "type": "input_number",
+                "print_after": ["<br/>", "<br/>"],
+                "help": "Number of partition days to keep",
+                "config": True
+            }
+        ]
+    },
+    # information for monitoring data on operator node
+    "data_monitor": {
+        "name": "Data Monitoring",
+        "next": "mqtt_params",
+        "node_type": ["rest", "operator", "single-node"],
+        "fields": [
+            {
+                "section": "data_monitor",
+                "required": False,
+                "key": "enable_data_monitor",
+                "label": "Enable Data Monitor",
+                "type": "checkbox",
+                "print_after" : ["<br/>","<br/>"],
+                "help": "Whether to enable data monitoring",
+                "config": True
+
+            },
+            {
+                "section": "data_monitor",
+                "required": False,
+                "key": "table_name",
+                "label": "Table Name",
+                "type": "input_text",
+                "value": "*",
+                "print_after" : ["<br/>","<br/>"],
+                "help": "Table(s) to monitor",
+                "config": True
+            },
+            {
+                "section": "data_monitor",
+                "required": False,
+                "key": "interval_value",
+                "label": "Interval",
+                "type": "input_number",
+                "value": 10,
+                "print_after" : ["<br/>","<br/>"],
+                "help": "number of interval to keep",
+                "config": True
+            },
+            {
+                "section": "data_monitor",
+                "required": False,
+                "key": "time_value",
+                "label": "Frequency",
+                "type": "input_number",
+                "print_after": ["", "&nbsp;"],
+                "help": "Numeric amount of time",
+                "config": True
+            },
+            {
+                "section": "data_monitor",
+                "required": False,
+                "key": "time_interval",
+                "type": "selection",
+                "options": ["second", "minute", "hour", "day"],
+                "print_after": ["<br/>", "<br/>"],
+                "help": "Time interval period",
                 "config": True
             }
         ]
@@ -442,6 +521,7 @@ al_forms = {
                 "key": "mqtt_topic_name",
                 "label": "Topic Name",
                 "type": "input_text",
+                "value": "*",
                 "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT topic name",
                 "config": True
@@ -750,7 +830,7 @@ def write_config_file():
 
         if counter == PAGE_COUNTER - 1:
             # write to config file
-            config_params = format_content(env_params=config_params)
             print(config_params)
+            config_params = format_content(env_params=config_params)
             config_file = os.path.join(CONFIG_DIR_PATH, '%s.ini' % config_params['general']['node_name'])
             io_config.write_configs(config_file=config_file, config_data=config_params)

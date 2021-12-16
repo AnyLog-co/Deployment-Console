@@ -48,8 +48,8 @@ def format_content(env_params:dict)->dict:
             1. merge master node params into a single value 
             2. validate ports are not the same - if they are change them
             '''
-            env_params[key]['master_node'] = '%s:%s' % (env_params[key]['msater_node_ip'],
-                                                        env_params[key]['msater_node_port'])
+            env_params[key]['master_node'] = '%s:%s' % (env_params[key]['master_node_ip'],
+                                                        env_params[key]['master_node_port'])
             for param in ['master_node_ip', 'master_node_port']:
                 del env_params[key][param]
 
