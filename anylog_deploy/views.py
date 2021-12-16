@@ -6,6 +6,8 @@ import anylog_api.io_config as io_config
 from django.http.response import HttpResponse
 from django.shortcuts import render
 
+from anylog_deploy.validate_params import format_content
+
 FIRST_PAGE_KEY = "base_configs"      # First page ID
 
 PAGE_COUNTER = 0                    # Number of pages process
@@ -142,7 +144,7 @@ al_forms = {
                 "key": "auth_type",
                 "label": "Authentication Type",
                 "type": "selection",
-                "options": ["", "admin", "user"],
+                "options": ["admin", "user"],
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Authentication user type",
                 "config": True
@@ -738,11 +740,9 @@ def write_config_file():
 
         for field in fields:
             if "key" in field and "value" in field:
-                if not "config" in field or field["config"] is True:       # field["config"] set to false makes the value removed from the output file
+                if "config" in field and field["config"] is True:       # field["config"] set to false makes the value removed from the output file
                     if field['section'] not in config_params:
                         config_params[field['section']] = {}
-                    if field['value'] == 'generic':
-                        field['value'] = 'none'
                     if isinstance(field['value'], bool):
                         config_params[field['section']][field["key"]] = str(field['value']).lower()
                     elif field['value'] != '':
@@ -750,6 +750,7 @@ def write_config_file():
 
         if counter == PAGE_COUNTER - 1:
             # write to config file
+            config_params = format_content(env_params=config_params)
             print(config_params)
             config_file = os.path.join(CONFIG_DIR_PATH, '%s.ini' % config_params['general']['node_name'])
             io_config.write_configs(config_file=config_file, config_data=config_params)
