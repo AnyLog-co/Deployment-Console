@@ -1,4 +1,6 @@
 import os
+import socket
+
 import django.core.handlers.wsgi
 import anylog_api.io_config as io_config
 from django.http.response import HttpResponse
@@ -58,12 +60,12 @@ al_forms = {
                             "single-node-publisher"],
                 "next1": ["database_configs", "network_configs", "network_configs", "network_configs", "network_configs",
                          "network_configs", "network_configs", "network_configs"],
-                "next2": ["deployment_configs", "database_configs", "database_configs", "database_configs", "database_configs",
+                "next2": [None, "database_configs", "database_configs", "database_configs", "database_configs",
                          "database_configs", "database_configs", "database_configs"],
-                "next3": ["deployment_configs", "operator_params", "deployment_configs", "operator_params", "mqtt_params",
-                          "deployment_configs", "operator_params", "mqtt_params"],
-                "next4": ["deployment_configs", "mqtt_params", "deployment_configs", "mqtt_params", "deployment_configs",
-                          "deployment_configs", "mqtt_params", "deployment_configs"],
+                "next3": [None, "operator_params", None, "operator_params", "mqtt_params",
+                          None, "operator_params", "mqtt_params"],
+                "next4": [None, "mqtt_params", None, "mqtt_params", None,
+                          None, "mqtt_params", None],
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Type of node AnyLog should run",
                 "config": True,
@@ -80,6 +82,7 @@ al_forms = {
                 "required": True,
                 "key" : "node_name",
                 "label" : "Node Name",
+                "value": "new-node",
                 "type" : "input_text",
                 "print_after" : ["<br/>","<br/>"],
                 "help" : "Name correlated with the node",
@@ -90,6 +93,7 @@ al_forms = {
                 "required": True,
                 "key": "company_name",
                 "label": "Company Name",
+                "value": "Your Company Name Here",
                 "type": "input_text",
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Company correlated with policies declared via this node",
@@ -138,7 +142,7 @@ al_forms = {
                 "key": "auth_type",
                 "label": "Authentication Type",
                 "type": "selection",
-                "options": ["admin", "user"],
+                "options": ["", "admin", "user"],
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Authentication user type",
                 "config": True
@@ -156,6 +160,7 @@ al_forms = {
                 "key": "anylog_tcp_port",
                 "label": "TCP Port",
                 "type": "input_number",
+                "value": 2048,
                 "min": 2048, "max": 65535,
                 "print_after" : ["<br/>","<br/>"],
                 "help": "TCP port for node used to communicate with other nodes in the network",
@@ -167,6 +172,7 @@ al_forms = {
                 "key": "anylog_rest_port",
                 "label": "REST Port",
                 "type": "input_number",
+                "value": 2049,
                 "min": 2048, "max": 65535,
                 "print_after" : ["<br/>","<br/>"],
                 "help": "REST port to communicate against with the AnyLog instance",
@@ -175,14 +181,25 @@ al_forms = {
             {
                 "section": "networking",
                 "required": True,
-                "key": "master_node",
+                "key": "master_node_ip",
                 "label": "Master Node",
-                "type": "input_text",
-                "print_after" : ["<br/>","<br/>"],
-                "help": "TCP connection information for master node",
+                "type": "input_ip",
+                "value": socket.gethostbyname(socket.gethostname()),
+                "print_after" : ["",":"],
+                "help": "TCP IP connection information for master node",
                 "config": True,
             },
-
+            {
+                "section": "networking",
+                "required": True,
+                "key": "master_node_port",
+                "type": "input_number",
+                "value": 2048,
+                "min": 2048, "max": 65535,
+                "print_after" : ["<br/>","<br/>"],
+                "help": "TCP port connection information for master node",
+                "config": True,
+            },
             # Optional params
             {
                 "section": "networking",
@@ -226,18 +243,38 @@ al_forms = {
                 "label": "Database Type",
                 "type": "selection",
                 "options": ["", "sqlite", "psql"],
-                "print_after" : ["<br/>","<br/>"],
+                "print_after": ["<br/>","<br/>"],
                 "help": "Type of database to be used by the AnyLog node",
                 "config": True,
             },
             {
                 "section": "database",
                 "required": True,
-                "key": "db_user",
+                "key": "db_username",
                 "label": "Database Credentials",
                 "type": "input_text",
+                "value": "db_user",
+                "print_after" : ["","@"],
+                "help": "Database username",
+                "config": True,
+            },
+            {
+                "section": "database",
+                "required": True,
+                "key": "db_ip",
+                "type": "input_ip",
+                "value": "127.0.0.1",
+                "print_after" : ["",":"],
+                "help": "IP address of database",
+                "config": True,
+            },
+            {
+                "section": "database",
+                "required": True,
+                "key": "db_password",
+                "type": "input_password",
                 "print_after" : ["<br/>","<br/>"],
-                "help": "Database credentials (ex. ${USER}@${IP}:${PASSWORD})",
+                "help": "Database password correlated to user",
                 "config": True,
             },
             {
@@ -246,6 +283,7 @@ al_forms = {
                 "key": "db_port",
                 "label": "Database Port",
                 "type": "input_number",
+                "value": 5432,
                 "min": 2048, "max": 65535,
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Database access port",
@@ -265,9 +303,9 @@ al_forms = {
                 "key": "default_dbms",
                 "label": "Default Database",
                 "type": "input_text",
-                "options": ["true", "false"],
+                "value": "test_db",
                 "print_after" : ["<br/>","<br/>"],
-                "help": "Database correlated to the operator",
+                "help": "Logical Database correlated to the operator",
                 "config": True
             },
             {
@@ -296,7 +334,7 @@ al_forms = {
                 "key": "enable_partition",
                 "label": "Enable Partitioning",
                 "type": "checkbox",
-                "print_after" : ["<br/>","<br/>"],
+                "print_after": ["<br/>","<br/>"],
                 "help": "Whether or not to enable partitioning",
                 "config": True
             },
@@ -306,17 +344,27 @@ al_forms = {
                 "key": "partition_column",
                 "label": "Partition Column",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after": ["<br/>","<br/>"],
                 "help": "Timestamp column to partition by",
                 "config": True
             },
             {
                 "section": "partition",
                 "required": False,
-                "key": "partition_interval",
+                "key": "partition_interval_value",
                 "label": "Partition Interval",
                 "type": "input_text",
-                "print_after": ["&nbsp;", "&nbsp;"],
+                "print_after": ["", "&nbsp;"],
+                "help": "Partition interval",
+                "config": True
+            },
+            {
+                "section": "partition",
+                "required": False,
+                "key": "partition_interval_period",
+                "type": "selection",
+                "options": ["hour", "day", "month", "year"],
+                "print_after": ["<br/>", "<br/>"],
                 "help": "Partition interval",
                 "config": True
             }
@@ -325,7 +373,7 @@ al_forms = {
     # MQTT related params
     "mqtt_params": {
         "name": "MQTT Parameters",
-        "next": "deployment_configs",
+        "next": None,
         "node_type": ["rest", "publisher", "operator", "single-node", "single-node-publisher"],
         "fields": [
             {
@@ -428,8 +476,8 @@ al_forms = {
                 "key": "mqtt_column_value_type",
                 "label": "MQTT Value Column Type",
                 "type": "selection",
-                "options": ["str", "int", "float", "bool", "timestamp"],
-                "print_after" : ["<br/>","<br/>"],
+                "options": ["", "str", "int", "float", "bool", "timestamp"],
+                "print_after" : ["&nbsp;", "&nbsp;"],
                 "help": "MQTT value column type",
                 "config": True
             },
@@ -443,32 +491,6 @@ al_forms = {
                 "config": True
             }
         ]
-    },
-    # whether to deploy Postgres and/or Grafana docker container(s)
-    "deployment_configs": {
-        "name": "Deployment Configs",
-        "next": None,
-        "node_type": ["rest", "publisher", "operator", "single-node", "single-node-publisher"],
-        "fields": [
-            {
-                "section": "other",
-                "key": "psql",
-                "label": "Postgres",
-                "type": "checkbox",
-                "print_after" : ["<br/>","<br/>"],
-                "help": "Whether or not to deploy Postgres container",
-                "config": True
-            },
-            {
-                "section": "other",
-                "key": "grafana",
-                "label": "Grafana",
-                "type": "checkbox",
-                "print_after" : ["<br/>","<br/>"],
-                "help": "Whether or not to deploy Grafana container",
-                "config": True
-            }
-    ]
     }
 }
 
@@ -728,5 +750,6 @@ def write_config_file():
 
         if counter == PAGE_COUNTER - 1:
             # write to config file
+            print(config_params)
             config_file = os.path.join(CONFIG_DIR_PATH, '%s.ini' % config_params['general']['node_name'])
             io_config.write_configs(config_file=config_file, config_data=config_params)
