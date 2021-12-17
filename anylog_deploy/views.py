@@ -522,7 +522,7 @@ al_forms = {
                 "key": "mqtt_topic_name",
                 "label": "Topic Name",
                 "type": "input_text",
-                "value": "*",
+                "value": "#",
                 "print_after" : ["<br/>","<br/>"],
                 "help": "MQTT topic name",
                 "config": True
