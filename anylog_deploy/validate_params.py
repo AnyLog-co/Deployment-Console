@@ -1,5 +1,3 @@
-from anylog_deploy.password_encryption import EncryptPasswords
-
 def format_content(env_params:dict)->dict:
     """
     Given the generated environment params, convert to usable params
@@ -12,8 +10,6 @@ def format_content(env_params:dict)->dict:
     :return:
         updated env_params
     """
-    encrypt_password = EncryptPasswords()
-    execute_encryption = encrypt_password.create_keys()
 
     for key in env_params:
         if key == 'general' and env_params[key]['node_type'] == 'generic':
@@ -30,9 +26,6 @@ def format_content(env_params:dict)->dict:
                                                                 'password' not in env_params[key]):
                 env_params[key]['authentication'] = 'false'
 
-            if 'password' in env_params[key] and execute_encryption is True:
-                env_params[key]['password'] = encrypt_password.encrypt_string(value=env_params[key]['password'])
-
         if key == 'networking':
             '''
             1. merge master node params into a single value 
@@ -46,8 +39,6 @@ def format_content(env_params:dict)->dict:
             '''
             merge database credential information into a single value
             '''
-            if execute_encryption is True:
-                env_params[key]['db_password'] = encrypt_password.encrypt_string(value=env_params[key]['db_password'])
             env_params[key]['db_user'] = '%s@%s:%s' % (env_params[key]['db_username'], env_params[key]['db_ip'],
                                                        env_params[key]['db_password'])
             for param in ['db_username', 'db_ip', 'db_password']:
@@ -96,7 +87,5 @@ def format_content(env_params:dict)->dict:
                                                              not env_params[key]['mqtt_port']):
                 env_params[key]['mqtt_enable'] = 'false'
 
-            if 'mqtt_password' in env_params[key] and execute_encryption is True:
-                env_params[key]['mqtt_password'] = encrypt_password.encrypt_string(value=env_params[key]['mqtt_password'])
 
     return env_params

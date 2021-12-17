@@ -2,9 +2,10 @@ import os
 import socket
 
 import django.core.handlers.wsgi
-import anylog_api.io_config as io_config
+import anylog_deploy.io_config as io_config
 from django.http.response import HttpResponse
 from django.shortcuts import render
+from anylog_deploy.password_encryption import EncryptPasswords
 
 from anylog_deploy.validate_params import format_content
 
@@ -812,6 +813,8 @@ def write_config_file():
     global PAGES_LIST
 
     config_params = {}
+    encrypt_password = EncryptPasswords()
+    execute_encryption = encrypt_password.create_keys()
 
     for counter in range(PAGE_COUNTER):
         page_name = PAGES_LIST[counter]
@@ -823,8 +826,12 @@ def write_config_file():
                 if "config" in field and field["config"] is True:       # field["config"] set to false makes the value removed from the output file
                     if field['section'] not in config_params:
                         config_params[field['section']] = {}
+
+
                     if isinstance(field['value'], bool):
                         config_params[field['section']][field["key"]] = str(field['value']).lower()
+                    elif field['type'] == 'input_password' and execute_encryption is True and field['value'] != '':
+                        config_params[field['section']][field["key"]] = encrypt_password.encrypt_string(value=field['value'])
                     elif field['value'] != '':
                         config_params[field['section']][field["key"]] = field['value']
 
