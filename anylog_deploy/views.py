@@ -243,7 +243,7 @@ al_forms = {
                 "key": "db_type",
                 "label": "Database Type",
                 "type": "selection",
-                "options": ["", "sqlite", "psql"],
+                "options": ["sqlite", "psql"],
                 "print_after": ["<br/>","<br/>"],
                 "help": "Type of database to be used by the AnyLog node",
                 "config": True,
@@ -602,6 +602,7 @@ class DeploymentConsole:
 
         selection_list = None
         save_button = False
+        out_msg = None
 
         if request.method == 'POST':
             current_page = request.POST.get('page_name')
@@ -621,7 +622,7 @@ class DeploymentConsole:
 
             elif request.POST.get('save_config'):
                 update_config(request)  # go to the last page
-                write_config_file()
+                out_msg = write_config_file()
                 next_page_name = current_page  # repeat page with option to save data
             else:
                 # get next page
@@ -645,6 +646,7 @@ class DeploymentConsole:
         PAGE_COUNTER += 1
 
         al_forms[next_page_name]["page_name"] = next_page_name      # store the page key to analyze the data
+        al_forms[next_page_name]["message"] = out_msg               # Message to print on page
 
         al_forms[next_page_name]["save_button"] = save_button
         if selection_list:
@@ -808,10 +810,12 @@ def write_config_file():
         config_params:dict - params to write to file
         config_file:str - full file path
     """
+
     global al_forms
     global PAGE_COUNTER
     global PAGES_LIST
 
+    write_msg = ""
     config_params = {}
     encrypt_password = EncryptPasswords()
     execute_encryption = encrypt_password.create_keys()
@@ -839,4 +843,6 @@ def write_config_file():
             # write to config file
             config_params = format_content(env_params=config_params)
             config_file = os.path.join(CONFIG_DIR_PATH, '%s.ini' % config_params['general']['node_name'])
-            io_config.write_configs(config_file=config_file, config_data=config_params)
+            write_msg = io_config.write_configs(config_file=config_file, config_data=config_params)
+
+    return write_msg

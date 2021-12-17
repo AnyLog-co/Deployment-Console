@@ -213,6 +213,10 @@
         <input type ="submit" name = "save_config" value="Save" title="Save to config file"/>
   {%  endif %}
 
+  {% if message %}
+      &nbsp; &nbsp;
+      <text style="font-size: 15px" color="gray">Message: {{message}}</text>
+  {%  endif %}
   </form>
 
   </body>
