@@ -5,7 +5,18 @@ import django.core.handlers.wsgi
 import anylog_deploy.io_config as io_config
 from django.http.response import HttpResponse
 from django.shortcuts import render
-from anylog_deploy.password_encryption import EncryptPasswords
+
+ENCRYPTION = True
+try:
+    from anylog_deploy.password_encryption import EncryptPasswords
+except:
+    ENCRYPTION = False
+else:
+    encrypt_password = EncryptPasswords()
+    write_msg = encrypt_password.create_keys()
+    print(write_msg)
+    if write_msg is not None:
+        ENCRYPTION = False
 
 from anylog_deploy.validate_params import format_content
 
@@ -815,10 +826,8 @@ def write_config_file():
     global PAGE_COUNTER
     global PAGES_LIST
 
-    write_msg = ""
+    write_msg = None
     config_params = {}
-    encrypt_password = EncryptPasswords()
-    execute_encryption = encrypt_password.create_keys()
 
     for counter in range(PAGE_COUNTER):
         page_name = PAGES_LIST[counter]
@@ -831,13 +840,16 @@ def write_config_file():
                     if field['section'] not in config_params:
                         config_params[field['section']] = {}
 
-
                     if isinstance(field['value'], bool):
                         config_params[field['section']][field["key"]] = str(field['value']).lower()
-                    elif field['type'] == 'input_password' and execute_encryption is True and field['value'] != '':
-                        config_params[field['section']][field["key"]] = encrypt_password.encrypt_string(value=field['value'])
                     elif field['value'] != '':
                         config_params[field['section']][field["key"]] = field['value']
+
+                    if field['type'] == 'input_password' and ENCRYPTION is True and field['value'] != '':
+                        value, write_msg = encrypt_password.encrypt_string(value=field['value'])
+                        print(value, write_msg)
+                        if write_msg is None:
+                            config_params[field['section']][field["key"]] = value
 
         if counter == PAGE_COUNTER - 1:
             # write to config file
