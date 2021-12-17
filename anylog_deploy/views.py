@@ -6,18 +6,6 @@ import anylog_deploy.io_config as io_config
 from django.http.response import HttpResponse
 from django.shortcuts import render
 
-ENCRYPTION = True
-try:
-    from anylog_deploy.password_encryption import EncryptPasswords
-except:
-    ENCRYPTION = False
-else:
-    encrypt_password = EncryptPasswords()
-    write_msg = encrypt_password.create_keys()
-    print(write_msg)
-    if write_msg is not None:
-        ENCRYPTION = False
-
 from anylog_deploy.validate_params import format_content
 
 FIRST_PAGE_KEY = "base_configs"      # First page ID
@@ -844,12 +832,6 @@ def write_config_file():
                         config_params[field['section']][field["key"]] = str(field['value']).lower()
                     elif field['value'] != '':
                         config_params[field['section']][field["key"]] = field['value']
-
-                    if field['type'] == 'input_password' and ENCRYPTION is True and field['value'] != '':
-                        value, write_msg = encrypt_password.encrypt_string(value=field['value'])
-                        print(value, write_msg)
-                        if write_msg is None:
-                            config_params[field['section']][field["key"]] = value
 
         if counter == PAGE_COUNTER - 1:
             # write to config file

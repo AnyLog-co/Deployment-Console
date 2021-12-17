@@ -61,17 +61,6 @@ al_forms = {
 }
 ````
 
-### Password Encryption
-When setting the form value type to `input_password` the code recognizes to hide the content inputted by a user. 
-Once all the forms are completed, the code finds all the passwords and encrypts them using the `cryptography.fernet` 
-protocol.
-
-The [password_encryption.py](anylog_deploy/password_encryption.py) works as follows:
-1. Creates a new directory named [anylog_api/keys] if it doesn't exit (done in `__init__` process)
-2. If a file named `encryption_key.txt` doesn't exist within said file create it, and store a key of type `Fernet` within it (`create_keys`)
-3. Using the created key, encrypt the passwords(s) using the `encrypt_string` command. 
-
-
 
     
 `
