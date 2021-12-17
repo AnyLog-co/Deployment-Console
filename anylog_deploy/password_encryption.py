@@ -90,7 +90,7 @@ class EncryptPasswords:
 
         if status is True:
             try:
-                encrypted_value = fernet.encrypt(value.encode())
+                encrypted_value = fernet.encrypt(value.encode()).decode()
             except Exception as e:
                 print("Failed to encrypt given value (Error %s)" % e)
 
@@ -109,10 +109,9 @@ class EncryptPasswords:
 
         if status is True:
             try:
-                value = fernet.decrypt(encrypted_value).decode()
+                value = fernet.decrypt(encrypted_value.encode()).decode()
             except Exception as e:
                 print("Failed to decrypt given value (Error %s)" % e)
 
         return value
-
 

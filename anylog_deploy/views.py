@@ -830,8 +830,6 @@ def write_config_file():
 
         if counter == PAGE_COUNTER - 1:
             # write to config file
-            print(config_params)
             config_params = format_content(env_params=config_params)
-            print(config_params)
             config_file = os.path.join(CONFIG_DIR_PATH, '%s.ini' % config_params['general']['node_name'])
             io_config.write_configs(config_file=config_file, config_data=config_params)
