@@ -1,4 +1,4 @@
 .idea/
 __pycache__/
 anylog_deploy/configs/*
-keys/
+anylog_deploy/keys/*
