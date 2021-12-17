@@ -696,12 +696,13 @@ def update_config(request:django.core.handlers.wsgi.WSGIRequest):
             # fnd the next page to use
             for field in fields:
                 if column_key in field:
-                    if field["key"] == column_name:
-                        value = field["value"]
-                        index = field["options"].index(value)
-                        if column_key in field and len( field[column_key]) > index:
-                            next_page = field[column_key][index]    # Get the page name as a f(option selected)
-                        break
+                    if "key" in field and "value" in field:
+                        if field["key"] == column_name:
+                            value = field["value"]
+                            index = field["options"].index(value)
+                            if column_key in field and len( field[column_key]) > index:
+                                next_page = field[column_key][index]    # Get the page name as a f(option selected)
+                            break
 
     # get field values
     form_defs = al_forms[page_name]
