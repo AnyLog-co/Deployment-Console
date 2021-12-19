@@ -71,10 +71,10 @@ def format_content(env_params:dict)->dict:
             1. validate time_value and time_interval are set
             2. (if enable_data_monitor == true) declare  data_monitor_interval
             '''
-            if not env_params[key]["time_value"] or not env_params[key]["time_interval"]:
-                env_params[key]["enable_data_monitor"] = "false"
-
-            if env_params[key]["enable_data_monitor"] == "true":
+            if env_params[key]["enable_data_monitor"] == 'true' and ('time_interval' not in env_params[key]
+                                                                     or 'time_value' not in env_params[key]):
+                env_params[key]["enable_data_monitor"] = 'false'
+            elif env_params[key]["enable_data_monitor"] == "true":
                 env_params[key]["data_monitor_interval"] = "%s %s" % (env_params[key]["time_value"],
                                                                       env_params[key]["time_interval"])
                 for param in ["time_value", "time_interval"]:
