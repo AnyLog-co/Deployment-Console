@@ -56,10 +56,11 @@ def format_content(env_params:dict)->dict:
             1. validate column and interval value, if not set to False
             2. (if enable_partition is true) create partition interval  
             '''
-            if not env_params[key]['partition_column'] or not env_params[key]['partition_interval_value']:
+            if env_params[key]['enable_partition'] == 'true' and ('partition_column' not in env_params[key]
+                                                                  or 'partition_interval_value' not in env_params[key]
+                                                                  or  'partition_interval_period' not in env_params[key]):
                 env_params[key]['enable_partition'] = 'false'
-
-            if env_params[key]['enable_partition'] == 'true':
+            elif env_params[key]['enable_partition'] == 'true':
                 env_params[key]['partition_interval'] = '%s %s' % (env_params[key]['partition_interval_value'],
                                                                    env_params[key]['partition_interval_period'])
                 for param in ['partition_interval_value', 'partition_interval_period']:

@@ -2,3 +2,4 @@
 __pycache__/
 anylog_deploy/configs/*
 anylog_deploy/keys/*
+.DS_Store
