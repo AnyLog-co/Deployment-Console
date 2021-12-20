@@ -288,6 +288,26 @@ al_forms = {
                 "print_after" : ["<br/>","<br/>"],
                 "help": "Database access port",
                 "config": True,
+            },
+            {
+                "section": "blockchain_sync",
+                "required": False,
+                "key": "sync_value",
+                "label": "Blockchain Sync Time",
+                "type": "input_number",
+                "print_after": ["", "&nbsp;"],
+                "help": "Numeric value for blockchain sync",
+                "config": True,
+            },
+            {
+                "section": "blockchain_sync",
+                "required": False,
+                "key": "sync_period",
+                "type": "selection",
+                "options": ["second", "minute", "hour"],
+                "print_after" : ["<br/>","<br/>"],
+                "help": "Numeric value for blockchain sync",
+                "config": True,
             }
         ]
     },

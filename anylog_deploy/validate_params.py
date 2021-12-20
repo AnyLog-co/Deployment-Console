@@ -44,6 +44,19 @@ def format_content(env_params:dict)->dict:
             for param in ['db_username', 'db_ip', 'db_password']:
                 del env_params[key][param]
 
+        if key == 'blockchain_sync':
+            '''
+            configure blockchain sync process
+            '''
+            if 'sync_period' in env_params[key]:
+                env_params[key]['sync_time'] = env_params[key]['sync_period']
+                if 'sync_value' in env_params[key]:
+                    env_params[key]['sync_time'] = '%s %s' % (env_params[key]['sync_value'], env_params[key]['sync_period'])
+                    del env_params[key]['sync_value']
+                del env_params[key]['sync_period']
+            else:
+                env_params[key]['sync_time'] = '30 second'
+
         if key == 'cluster':
             '''
             validate cluster name if cluster is valid, if not generate name
