@@ -157,7 +157,7 @@ al_forms = {
             {
                 "section": "networking",
                 "required": True,
-                "key": "anylog_tcp_port",
+                "key": "anylog_server_port",
                 "label": "TCP Port",
                 "type": "input_number",
                 "value": 2048,

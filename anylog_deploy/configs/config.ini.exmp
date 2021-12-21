@@ -62,7 +62,7 @@ authentication = false
 master_node = <master_node>
 
 # TCP port for node used to communicate with other nodes in the network. Please make sure the port is open and available
-anylog_tcp_port = <anylog_tcp_port>
+anylog_server_port = <anylog_server_port>
 
 # REST port for node used to communicate with other nodes in the network. Please make sure the port is open and available
 anylog_rest_port = <anylog_rest_port>
