@@ -468,6 +468,16 @@ al_forms = {
                 "print_after": ["<br/>", "<br/>"],
                 "help": "Time interval period",
                 "config": True
+            },
+            {
+                "section": "data_monitor",
+                "required": False,
+                "key": "data_monitor_value",
+                "type": "input_text",
+                "print_after": ["<br/>", "<br/>"],
+                "help": "Column to monitor",
+                "value": "value",
+                "config": True
             }
         ]
     },
